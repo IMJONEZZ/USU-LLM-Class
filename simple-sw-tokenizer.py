@@ -2,8 +2,6 @@ import re
 from zenml import pipeline, step
 from datasets import load_dataset
 
-dataset = "andrewkroening/Star-wars-scripts-dialogue-IV-VI"
-
 class SimpleTokenizer: 
     def __init__(self, vocab):
         self.str_to_int = vocab
@@ -29,10 +27,10 @@ class SimpleTokenizer:
 @step
 def load_data() -> dict:
     # Load the dataset
-    ds = load_dataset(dataset)
+    ds = load_dataset("andrewkroening/Star-wars-scripts-dialogue-IV-VI")
     
     # Create a flat list of all dialogue text
-    all_text = " ".join(ds['train']['Line'])  # Changed from 'dialogue' to 'Line'
+    all_text = " ".join(ds['train']['Line'])  
     
     # Split into unique tokens
     all_tokens = sorted(list(set(re.split(r'([,.:;?_!"()\']|--|\s)', all_text))))
@@ -49,11 +47,11 @@ def load_data() -> dict:
     tokenizer = SimpleTokenizer(vocab)
     
     # Tokenize all dialogue
-    features = [tokenizer.encode(text) for text in ds['train']['Line']]  # Changed from 'dialogue' to 'Line'
+    features = [tokenizer.encode(text) for text in ds['train']['Line']]
     
     return {
         "features": features,
-        "labels": features  # Using same text for features and labels
+        "labels": features 
     }
 
 @step
