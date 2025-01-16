@@ -74,6 +74,8 @@ class WordPieceTokenizer:
             # Step 2: Find most frequent subword pair
             scores = self.get_pair_scores(tokenized_corpus, vocab_count)
             if not scores:
+            scores = self.get_pair_scores(tokenized_corpus, vocab_count)
+            if not scores:
                 break
 
             # Find the best pair to merge

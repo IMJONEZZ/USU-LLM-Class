@@ -29,6 +29,6 @@ if __name__ == "__main__":
 #    run = simple_ml_pipeline()
     data = load_data()
     # print(data)
-    tokenizer = WordPieceTokenizer(vocab_size=1000, corpus=data)
-    # tokenizer.build_vocab(data)
+    tokenizer = WordPieceTokenizer(vocab_size=100, corpus=data)
+    print(tokenizer.encode("This is a sentence."))
    # You can now use the `run` object to see steps, outputs, etc.
