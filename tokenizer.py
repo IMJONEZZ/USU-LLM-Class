@@ -23,9 +23,7 @@ class SimpleTokenizer:
     def encode(self, text):
         preprocessed = re.split(r'([,.:;?_!"()\']|--|\s)', text)
 
-        preprocessed = [
-        item.strip() for item in preprocessed if item.strip()
-        ]
+        preprocessed = [ item.strip() for item in preprocessed if item.strip() ]
 
         preprocessed = [item if item in self.str_to_int
         else "<|unk|>" for item in preprocessed]
@@ -39,8 +37,8 @@ class SimpleTokenizer:
         return text
 
 class WordPieceTokenizer:
-    def __init__(self, vocab):
-        self.str_to_int = vocab
+    def __init__(self, vocab_size):
+        self.str_to_int = build_vocab(vocab_size)
         self.int_to_str = { i:s for s,i in vocab.items()}
 
     def encode(self, text):
@@ -52,6 +50,12 @@ class WordPieceTokenizer:
         text = " ".join(tokens)
         text = re.sub(r'\s+([,.:;?!"()\'])', r'\1', text)
         return text
+    
+    def build_vocab(vocab_size):
+        vocab = {}
+        for i in range(vocab_size):
+            vocab[str(i)] = i
+        return vocab
     
 if __name__ == "__main__":
     tokenizer = WordPieceTokenizer(vocab)
