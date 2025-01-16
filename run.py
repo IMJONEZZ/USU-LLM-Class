@@ -1,20 +1,17 @@
 # from zenml import pipeline, step
 from tokenizer import WordPieceTokenizer
 import json
-
+import re
 
 # @step
-def load_data() -> str:
+def load_data() -> list:
     with open('SW_EpisodeIV_VI.json', 'r') as file:
-        raw_string = ""
-        # data: dict = json.load(file)
-        # for j_object in data:
-        #     raw_string += j_object['Line'] + " "
-        for line in file:
-            if "Line" in line:
-                raw_string += line.split(":")[1].strip().strip('"') + " "
-                # print(line.split(":")[1].strip().strip('"')) 
-    return raw_string
+        data = json.load(file)
+    corpus = [entry["Line"] for entry in data]
+    corpus = [re.split(r'([,.:;?_!"()\']|--|\s)', line) for line in corpus]
+    corpus = [word.lower() for sentence in corpus for word in sentence if word != " " and word != ""]
+
+    return corpus
 
 
 # @pipeline
@@ -31,5 +28,7 @@ if __name__ == "__main__":
 
 #    run = simple_ml_pipeline()
     data = load_data()
-    print(data)
+    # print(data)
+    tokenizer = WordPieceTokenizer(vocab_size=1000, corpus=data)
+    # tokenizer.build_vocab(data)
    # You can now use the `run` object to see steps, outputs, etc.
