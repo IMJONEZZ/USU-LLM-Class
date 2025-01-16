@@ -27,7 +27,7 @@ class SimpleTokenizer:
 class WordPieceTokenizer:
     def __init__(self, vocab_size: int, corpus: list):
         self.i = 1
-        self.timer = False
+        self.timer = True
         self.vocab_size = vocab_size
         startTime = time.time()
         self.str_to_int = self.build_vocab(corpus)
@@ -72,7 +72,7 @@ class WordPieceTokenizer:
             startTimeSingleWord = time.time()
             self.i += 1
             # Step 2: Find most frequent subword pair
-            scores = self.get_pair_scores(tokenized_corpus, vocab_count)
+            scores = self.calculate_pair_scores(tokenized_corpus, vocab_count)
             if not scores:
                 break
 
@@ -110,7 +110,7 @@ class WordPieceTokenizer:
         vocab.add("<|unk|>")
         return vocab
 
-    def get_pair_scores(self, tokenized_corpus, vocab_count):
+    def calculate_pair_scores(self, tokenized_corpus, vocab_count):
         pair_counts = defaultdict(int)
         startTime = time.time()
         for tokens in tokenized_corpus:
@@ -120,8 +120,7 @@ class WordPieceTokenizer:
         # Calculate scores
         scores = {}
         for pair, freq in pair_counts.items():
-            denominator = vocab_count[pair[0]] * vocab_count[pair[1]]
-            score = freq / denominator if denominator != 0 else 0
+            score = freq / vocab_count[pair[0]] * vocab_count[pair[1]] or 1
             scores[pair] = score
         print(f"Get pair scores {self.i}: {time.time() - startTime}") if self.timer else None
         return scores
