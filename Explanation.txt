@@ -1,0 +1,4 @@
+First off I stole the get_pairs function from the ChatGPT 2.0 code.
+This helps to understand more complex words with suffixes and prefixes such as unbelievable or greatly.
+I also included ". . ." as one of the symbols because that has a different meaning as just "." and should be its own token.
+I also exluded apostrophies from the symbols to split at to make contractions their own token instead of separate. 
