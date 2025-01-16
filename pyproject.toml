@@ -1,0 +1,21 @@
+[project]
+name = "usu-llm-class"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Tom Kerby"}
+]
+readme = "README.md"
+requires-python = ">=3.10,<3.13"
+package-mode = false
+dependencies = [
+    "pandas (>=2.2.3,<3.0.0)",
+    "zenml (>=0.71.0,<0.72.0)",
+    "ipykernel (>=6.29.5,<7.0.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
