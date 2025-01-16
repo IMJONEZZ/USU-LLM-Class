@@ -27,11 +27,31 @@ class WordPieceTokenizer:
     def __init__(self, vocab_size: int, corpus: list):
         self.vocab_size = vocab_size
         self.str_to_int = self.build_vocab(corpus)
+        print(self.str_to_int)
         # self.int_to_str = { i:s for s,i in self.str_to_int.items()}
 
     def encode(self, text):
+        text = text.lower()
+        subword_to_id = {subword: idx for idx, subword in enumerate(self.str_to_int, start=1)}
+        vocab = sorted(self.str_to_int, key=len, reverse=True)  # Sort vocab by length for longest match
+        encoded_sentence = []
         
-        return ""
+        for word in text.split():
+            while word:
+                match = None
+                # Try to match the longest subword in the vocab
+                for subword in vocab:
+                    if word.startswith(subword.replace("##", "")):
+                        match = subword
+                        break
+                if match:
+                    encoded_sentence.append(subword_to_id[match])
+                    word = word[len(match.replace("##", "")):]  # Remove the matched portion
+                else:
+                    encoded_sentence.append(subword_to_id["<|unk|>"])
+                    break
+        
+        return encoded_sentence, subword_to_id
 
     def decode(self, ids):
         tokens = [self.int_to_str[i] for i in ids]
@@ -39,35 +59,57 @@ class WordPieceTokenizer:
         text = re.sub(r'\s+([,.:;?!"()\'])', r'\1', text)
         return text
     
-    def build_vocab(self, corpus: list) -> dict:
-        vocab = {char: count for char, count in Counter("".join(corpus)).items()}
-        print(vocab)
+    def build_vocab(self, corpus: list) -> set:
+        vocab = set(f'##{char}' for word in corpus for char in word)
+        vocab_count = {char: count for char, count in Counter("".join(corpus)).items()}
+        tokenized_corpus = [[f"##{char}" for char in word] for word in corpus]
         
         while len(vocab) < self.vocab_size:
             # Step 2: Find most frequent subword pair
-            pair_freqs = self._calculate_pair_frequencies(corpus)
-            if not pair_freqs:
+            scores = self.get_pair_scores(tokenized_corpus, vocab_count)
+            if not scores:
                 break
             
-            # Merge the most frequent pair
-            best_pair = max(pair_freqs, key=pair_freqs.get)
-            new_token = "".join(best_pair)
-            vocab[new_token] = pair_freqs[best_pair]
+            # Find the best pair to merge
+            best_pair = max(scores, key=scores.get)
+            new_token = best_pair[0] + best_pair[1].replace("##", "")
             
-            # Update corpus with merged tokens
-            corpus = [word.replace(" ".join(best_pair), new_token) for word in corpus]
-        print(vocab)
+            # Update the tokenized corpus
+            for i, tokens in enumerate(tokenized_corpus):
+                new_tokens = []
+                skip = False
+                for j in range(len(tokens)):
+                    if skip:
+                        skip = False
+                        continue
+                    if j < len(tokens) - 1 and (tokens[j], tokens[j + 1]) == best_pair:
+                        new_tokens.append(new_token)
+                        skip = True
+                    else:
+                        new_tokens.append(tokens[j])
+                tokenized_corpus[i] = new_tokens
+            
+            # Update vocab and counts
+            vocab.add(new_token)
+            vocab_count[new_token.replace('#', '')] = sum(new_token in word for word in tokenized_corpus)
+            for token in best_pair:
+                vocab_count[token.replace('#', '')] -= vocab_count[new_token.replace('#', '')]
+
+        vocab.add("<|unk|>")
         return vocab
     
-    def _calculate_pair_frequencies(self, corpus):
-        """Calculate frequencies of adjacent pairs in the corpus."""
-        pair_freqs = defaultdict(int)
-        for word in corpus:
-            tokens = word.split()
+    def get_pair_scores(self, tokenized_corpus, vocab_count):
+        pair_counts = defaultdict(int)
+        for tokens in tokenized_corpus:
             for i in range(len(tokens) - 1):
-                pair = (tokens[i], tokens[i + 1])
-                pair_freqs[pair] += 1
-        return pair_freqs
+                pair_counts[(tokens[i], tokens[i + 1])] += 1
+        
+        # Calculate scores
+        scores = {}
+        for pair, freq in pair_counts.items():
+            score = freq / (vocab_count[pair[0].replace('#', '')] * vocab_count[pair[1].replace('#', '')])
+            scores[pair] = score
+        return scores
     
 if __name__ == "__main__":
     print("Wrong file")
