@@ -2,7 +2,7 @@
 
 This the read me file for Riley May's branch for assignment 2. 
 
-Answer to question 4. 
+### Answer to question 4. 
 
 I did not do a lot to improve the tokenizer because I didn't have an end goal of tokenizer. If I was doing something like topic modeling, I would have probably removed stop words or words with really low frequencies. 
 
