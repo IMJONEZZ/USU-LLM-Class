@@ -1,15 +1,11 @@
-# Nathan's Tokenizer Project
+import json
+import re
+from typing import Optional
+from zenml import pipeline, step
 
-## Questions and Answers
-
-### Question 1: Create a PR to the GitHub Repo
-**Status:** Finished  
-**Branch Name:** `nathan-weber_2`  
-**Repository Link:** [GitHub Repo](https://github.com/IMJONEZZ/USU-LLM-Class/tree/Nathan-Weber_2)
-
-### Question 2: Build a Tokenizer
-**Python Code:**
-```python
+# --------------------------------------------------
+# THE SIMPLETOKENIZER CLASS (in the same file)
+# --------------------------------------------------
 class SimpleTokenizer:
     def __init__(
         self, 
@@ -105,17 +101,93 @@ class SimpleTokenizer:
         tokens = [self.int_to_str[i] for i in ids]
         # Join with space, then remove extra spacing before punctuation
         text = " ".join(tokens)
-        text = re.sub(r'\s+([,.:;?\!"()\'])', r'\1', text)
+        text = re.sub(r'\s+([,.:;?!"()\'])', r'\1', text)
         return text
-```
 
-### Question 3: If Your Dataset Is in Your Repo, Please Add a .gitignore
-**Status:** Done
+# --------------------------------------------------
+# 1) LOAD DATA
+# --------------------------------------------------
+@step
+def load_data() -> str:
+    """
+    Loads all 'Line' fields from the Star Wars JSON array and
+    concatenates them into one big string.
+    """
+    with open("SW_EpisodeIV_VI.json", "r", encoding="utf-8") as f:
+        data = json.load(f)
+    lines = [item["Line"] for item in data if "Line" in item]
+    combined_text = " ".join(lines)
+    return combined_text
 
-### Question 4: What Did You Change About the Tokenizer?
-At the end of the Hugging Face article, it mentions byte-pair encoding (BPE) as the "end all" of tokenization. I scrapped what was there and used their idea. Essentially, it splits the input into subwords and uses frequency to determine the size of the vocabulary, which is a tunable hyperparameter.
+# --------------------------------------------------
+# 2) BUILD VOCABULARY
+# --------------------------------------------------
+@step
+def build_vocab(text: str) -> dict:
+    """
+    Dynamically build a vocabulary dict {token: idx} from the given text.
+    We split the text with the same pattern as SimpleTokenizer, then
+    assign an integer ID to each unique token.
+    """
+    # Split text the same way as SimpleTokenizer
+    split_tokens = re.split(r'([,.:;?_!"()\']|--|\s)', text)
+    split_tokens = [t.strip() for t in split_tokens if t.strip()]
 
-I don't know how to test for the best hyperparameter, so I used the suggestion from ChatGPT for a good starting point.
+    # Unique tokens (you could sort by frequency if needed)
+    unique_tokens = sorted(set(split_tokens))
 
-**First 50 Token IDs:**
-`[0, 0, 1289, 0, 0, 0, 0, 0, 768, 0, 2921, 0, 768, 2921, 13, 0, 0, 0, 0, 2, 0, 0, 2596, 0, 0, 2921, 1289, 0, 0, 0, 2921, 0, 0, 2064, 768, 0, 0, 0, 0, 768, 0, 2921, 0, 0, 6, 0, 0, 2, 0, 0]`
+    # Create a vocab with <|unk|> as ID 0
+    vocab = {"<|unk|>": 0}
+    current_id = 1
+    for token in unique_tokens:
+        vocab[token] = current_id
+        current_id += 1
+
+    return vocab
+
+# --------------------------------------------------
+# 3) ENCODE THE TEXT
+# --------------------------------------------------
+@step
+def encode_text(text: str, vocab: dict) -> list[int]:
+    """
+    Uses SimpleTokenizer to turn the text into a list of token IDs
+    according to the dynamically built vocabulary.
+    """
+    # Note: merges not provided here, so we rely on the default empty merges
+    tokenizer = SimpleTokenizer(vocab=vocab)
+    token_ids = tokenizer.encode(text)
+    return token_ids
+
+# --------------------------------------------------
+# 4) MOCK TRAIN
+# --------------------------------------------------
+@step
+def train_model(token_ids: list[int]) -> None:
+    """
+    A mock 'training' step that just demonstrates how many tokens we received.
+    Replace this with your actual training logic if desired.
+    """
+    print(f"Received {len(token_ids)} token IDs.")
+    # Display the first 50 as a sanity check
+    print("First 50 token IDs:", token_ids[:50])
+
+# --------------------------------------------------
+# PIPELINE DEFINITION
+# --------------------------------------------------
+@pipeline
+def tokenizethetext():
+    """
+    Pipeline that loads text, builds vocab, tokenizes,
+    and then mock-trains on the token IDs.
+    """
+    text = load_data()
+    vocab = build_vocab(text)
+    token_ids = encode_text(text, vocab)
+    train_model(token_ids)
+
+# --------------------------------------------------
+# RUN THE PIPELINE
+# --------------------------------------------------
+if __name__ == "__main__":
+    run = tokenizethetext()
