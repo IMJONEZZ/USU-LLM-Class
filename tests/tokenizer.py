@@ -101,11 +101,11 @@ def load_and_tokenize_data() -> dict:
     print(f"Encoded: {encoded}")
     print(f"Decoded: {tokenizer.decode(encoded)}")
 
-    # Create PyTorch dataset & DataLoader
+    # Create PyTorch dataset
     torch.manual_seed(123)
     tokenizer.add_special_tokens({"unk_token": "<|unk|>"})
     star_wars_dataset = StarWarsDataset(dataset, tokenizer)
-    my_dataloader = create_dataloader(star_wars_dataset, batch_size=10)
+    #my_dataloader = create_dataloader(star_wars_dataset, batch_size=10)
 
     # tokenize entire dataset with padding
     inputs = [tokenizer.encode(line) for line in dataset["Line"]]
