@@ -3,7 +3,7 @@ from zenml import pipeline, step
 from datasets import load_dataset
 from collections import Counter
 import torch
-
+from torch.utils.data import DataLoader, TensorDataset
 from dataloader import StarWarsDataset, create_dataloader
 
 
@@ -109,16 +109,17 @@ def load_and_tokenize_data() -> dict:
 
     # tokenize entire dataset with padding
     inputs = [tokenizer.encode(line) for line in dataset["Line"]]
-    print(len(inputs))
-    print(type(inputs[0][0]))
-    print(type(dataset["Character"][0]))
+
+    # this helped me visualize the data better to ensure I was processing it correctly:
+
+    # print(len(inputs))
+    # print(type(inputs[0][0]))
+    # print(type(dataset["Character"][0]))
     return {'inputs': inputs, 'labels': dataset["Character"]}
 
 
 @step
 def train_model(data: dict) -> None:
-    """Train the model using the dataset."""
-    from torch.utils.data import DataLoader, TensorDataset
 
     """Train the model using the dataset."""
 
@@ -127,9 +128,6 @@ def train_model(data: dict) -> None:
 
     # Convert the string labels to integer labels
     integer_labels = [label_to_int[label] for label in data["labels"]]
-
-    # Ensure inputs is a tensor of shape (batch_size, sequence_length)
-    inputs = torch.tensor(data["inputs"], dtype=torch.long)
 
     # Get the max sequence length in inputs (for padding)
     max_len = max(len(seq) for seq in data["inputs"])
