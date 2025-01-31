@@ -58,10 +58,8 @@ def create_dataloader_v1(
     drop_last=True,
     num_workers=0,
 ):
-    tokenizer = make_tokenizer(
-        txt
-    )  
-    
+    tokenizer = make_tokenizer(txt)
+
     dataset = TextDataset(txt, tokenizer, max_length, stride)
 
     dataloader = DataLoader(
