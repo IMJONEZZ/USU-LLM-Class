@@ -60,8 +60,8 @@ def create_dataloader_v1(
 ):
     tokenizer = make_tokenizer(
         txt
-    )  # Replace None with your actual tokenizer initialization
-
+    )  
+    
     dataset = TextDataset(txt, tokenizer, max_length, stride)
 
     dataloader = DataLoader(
