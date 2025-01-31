@@ -147,7 +147,7 @@ def train_model(data: dict) -> None:
 
     # Iterate through the batches
     for batch_idx, (inputs_batch, labels_batch) in enumerate(dataloader):
-        print(f"Batch {batch_idx}: Inputs shape: {inputs_batch.shape}, Labels shape: {labels_batch.shape}")"""
+        print(f"Batch {batch_idx}: Inputs shape: {inputs_batch.shape}, Labels shape: {labels_batch.shape}")
 @pipeline
 def my_pipeline_with_tokenization():
     """Define a pipeline that connects the steps."""
