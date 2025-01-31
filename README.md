@@ -1,3 +1,6 @@
+Editing this file for assignment 3 commit one. 
+
+
 # USU LLM Class
 
 Repository for USU LLM Class DSAI-5810/6810
