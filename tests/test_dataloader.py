@@ -9,7 +9,7 @@ import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 # from tokenizer import make_tokenizer, get_string
-from assn3 import TextDataset, create_dataloader_v1, load_data
+from assn3 import TextDataset, create_dataloader_v1
 
 
 # Mock tokenizer for testing

@@ -91,12 +91,14 @@ def load_data(file_path) -> DataLoader:
 @step
 def train_model(dataloader: DataLoader) -> None:
     """Mock 'training' process that demonstrates using the input data."""
-
+    
     for batch_idx, (input_chunk, target_chunk) in enumerate(dataloader):
         # Just an example; typically you'd perform actual model training here
-        print(f"Training with batch {batch_idx + 1}:")
-        print(f"Input: {input_chunk}")
-        print(f"Target: {target_chunk}")
+        if batch_idx ==0:
+            print(f"Training with batch {batch_idx + 1}:")
+            print(f"Input: {input_chunk}")
+            print(f"Target: {target_chunk}")
+
 
 
 @pipeline
@@ -104,10 +106,11 @@ def assn3_pipe():
     """Define a pipeline that connects the steps."""
     file_path = "SW_EpisodeIV_VI.json"  # Example path to your input data
 
-    dataloader = load_data(file_path)
+    #### dataloader = 
+    load_data(file_path)
 
 
-#  train_model(dataloader)
+    # train_model(dataloader)
 
 
 if __name__ == "__main__":
