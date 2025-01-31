@@ -105,7 +105,7 @@ def load_and_tokenize_data() -> dict:
     torch.manual_seed(123)
     tokenizer.add_special_tokens({"unk_token": "<|unk|>"})
     star_wars_dataset = StarWarsDataset(dataset, tokenizer)
-    dataloader = create_dataloader(star_wars_dataset, batch_size=10)
+    my_dataloader = create_dataloader(star_wars_dataset, batch_size=10)
 
     # tokenize entire dataset with padding
     inputs = [tokenizer.encode(line) for line in dataset["Line"]]
@@ -143,10 +143,10 @@ def train_model(data: dict) -> None:
 
     # Create dataset and dataloader
     dataset = TensorDataset(torch.tensor(padded_inputs, dtype=torch.long), labels)
-    dataloader = DataLoader(dataset, batch_size=10, shuffle=True)
+    my_dataloader = DataLoader(dataset, batch_size=10, shuffle=True)
 
     # Iterate through the batches
-    for batch_idx, (inputs_batch, labels_batch) in enumerate(dataloader):
+    for batch_idx, (inputs_batch, labels_batch) in enumerate(my_dataloader):
         print(f"Batch {batch_idx}: Inputs shape: {inputs_batch.shape}, Labels shape: {labels_batch.shape}")
 @pipeline
 def my_pipeline_with_tokenization():
