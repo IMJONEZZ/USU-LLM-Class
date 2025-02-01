@@ -23,8 +23,10 @@ jobs:
           uv sync
           pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
 
-      - name: Verify PyTorch Installation
-        run: python -c "import torch; print('PyTorch installed:', torch.__version__)"
+      - name: Verify Installed Packages
+        run: |
+          python -m pip list
+          python -c "import torch; print('PyTorch installed:', torch.__version__)"
 
       - name: Run Format and Lint Checks
         run: |
