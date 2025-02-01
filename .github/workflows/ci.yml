@@ -18,7 +18,12 @@ jobs:
         with:
           python-version-file: ".python-version"
 
-      - name: Install dependencies
+      - name: Ensure pip is Installed
+        run: |
+          uv venv  # Ensure virtual environment is created
+          uv pip install --upgrade pip  # Reinstall pip inside virtual environment
+
+      - name: Install Dependencies
         run: |
           uv sync
           uv pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
