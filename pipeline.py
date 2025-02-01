@@ -56,14 +56,14 @@ def create_dataloaders(
         train_dataset,
         batch_size=batch_size,
         shuffle=True,
-        num_workers=0  # Changed from 2 to 0 for simpler testing
+        num_workers=0
     )
     
     val_loader = DataLoader(
         val_dataset,
         batch_size=batch_size,
         shuffle=False,
-        num_workers=0  # Changed from 2 to 0 for simpler testing
+        num_workers=0
     )
     
     return train_loader, val_loader
