@@ -26,3 +26,5 @@ jobs:
     - name: Run tests
       run: |
         uv run pytest
+    - name: Create mock file
+      run: echo "This is a test file." > mock_file.txt

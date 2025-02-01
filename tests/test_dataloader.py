@@ -7,7 +7,7 @@ import os
 
 # Add the parent directory to the Python path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-os.path.join(__file__, "mock_file.txt")
+# os.path.join(__file__, "mock_file.txt")
 
 # from tokenizer import make_tokenizer, get_string
 from assn3 import TextDataset, create_dataloader_v1
