@@ -5,6 +5,8 @@ description = "Repository for USU LLM Class DSAI-5810/6810"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "torch>=2.5.1",
+    "torchvision>=0.20.1",
     "zenml[server]>=0.73.0",
 ]
 
