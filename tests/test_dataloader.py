@@ -13,9 +13,9 @@ from usu_llm_class.data import StarWarsDataset
 def sample_dataset(tmp_path):
     # Create dummy data: a list of dialogue dictionaries.
     data = [
-        {"speaker": "LUKE", "dialogue": "I am your father?"},
-        {"speaker": "VADER", "dialogue": "No, I am your father."},
-        {"speaker": "HAN", "dialogue": "Never tell me the odds!"},
+        {"Character": "LUKE", "Line": "I am your father?"},
+        {"Character": "VADER", "Line": "No, I am your father."},
+        {"Character": "HAN", "Line": "Never tell me the odds!"},
     ]
     json_file = tmp_path / "SW_EpisodeIV_VI.json"
     with open(json_file, "w") as f:
@@ -39,13 +39,13 @@ def test_dataloader_batch(sample_dataloader):
     batch = next(iter(sample_dataloader))
 
     assert isinstance(batch, dict)
-    assert "speaker" in batch
-    assert "dialogue" in batch
+    assert "Character" in batch
+    assert "Line" in batch
 
-    speakers = batch["speaker"]
-    dialogues = batch["dialogue"]
-    assert len(speakers) == 2  # because batch_size is 2
-    assert len(dialogues) == 2
+    characters = batch["Character"]
+    lines = batch["Line"]
+    assert len(characters) == 2  # because batch_size is 2
+    assert len(lines) == 2
 
 
 def test_full_iteration(sample_dataloader):
