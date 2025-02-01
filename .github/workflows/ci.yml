@@ -1,7 +1,6 @@
 name: Test, Format, and Lint
 
 on:
-  # Run on every push. Adjust to your preferred triggers.
   push:
     branches: ["**"]
 
@@ -17,14 +16,14 @@ jobs:
       - name: Setup uv
         uses: astral-sh/setup-uv@v5
 
-      # 3) Set up Python from .python-version (3.12, for example)
+      # 3) Set up Python from your .python-version file (assumes 3.12)
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version-file: ".python-version"
 
       # 4) Create the virtual environment, sync packages, install PyTorch
-      - name: Create Virtual Environment & Sync
+      - name: Install Dependencies
         run: |
           uv venv
           uv sync
@@ -37,13 +36,17 @@ jobs:
           uv run python -m pip list
           uv run python -c "import torch; print('PyTorch installed:', torch.__version__)"
 
-      # 6) Run lint checks (Ruff) and format checks
-      - name: Run Format and Lint Checks
+      # 6) Set PYTHONPATH and Run lint checks, format checks, tests
+      - name: Run Lint, Format, and Tests
         run: |
+          # Add project root to PYTHONPATH so 'run.py' is importable
+          export PYTHONPATH=$PWD:$PYTHONPATH
+
+          # Run Ruff lint checks
           uv run ruff check .
+
+          # Check if code is properly formatted
           uv run ruff format --check .
 
-      # 7) Run your tests
-      - name: Run tests
-        run: |
+          # Run Pytest (now 'tests/test_dataloader.py' can see 'run.py')
           uv run pytest
