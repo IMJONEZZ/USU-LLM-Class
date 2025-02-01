@@ -51,5 +51,5 @@ def test_dataloader_batch(sample_dataloader):
 def test_full_iteration(sample_dataloader):
     all_batches = list(sample_dataloader)
     assert len(all_batches) == 2
-    total_samples = sum(len(batch["speaker"]) for batch in all_batches)
+    total_samples = sum(len(batch["Character"]) for batch in all_batches)
     assert total_samples == 3
