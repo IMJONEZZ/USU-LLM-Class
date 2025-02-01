@@ -4,25 +4,27 @@ import re
 import pandas as pd
 from typing import List
 from collections import Counter, defaultdict
+from torch.utils.data import Dataset, DataLoader
 from BPEtokenizer import BPETokenizer
+from DataLoader import DataLoader
 
 
 @step
-def load_data() -> dict:
-    """Simulates loading of training data and labels."""
 
-    training_data = [[1, 2], [3, 4], [5, 6]]
+def load_data(data: List[str]) -> DataLoader:
 
-    labels = [0, 1, 0]
+    data = CustomDataset(data)
+    return data
 
-    return {"features": training_data, "labels": labels}
+
+
 @step
 def dummy_step():
     hi = "bye"
     
 
 @step
-def train_tokenizer(data: List[str]) -> BPETokenizer:
+def train_tokenizer(data: list()) -> BPETokenizer:
     "trains the tokenizer on data provided"
 
     model = BPETokenizer(vocab_size=1000)
@@ -36,11 +38,22 @@ def train_tokenizer(data: List[str]) -> BPETokenizer:
 def llm_pipeline():
     """Define a pipeline that connects the steps."""
     x = dummy_step()
+    
+    
+    #Read in
+    with open('SW_EpisodeIV_VI.json', 'r') as file:
+        raw_data = json.load(file) 
+    if isinstance(raw_data, dict):  # If JSON is a dictionary, extract string values
+        data = [str(value) for value in raw_data.values()]
+    elif isinstance(raw_data, list):  # If JSON is a list, convert all items to strings
+        data = [str(item) for item in raw_data]
+    else:
+        raise ValueError("Unexpected JSON format: Expected a dictionary or list.")
+    dataset = load_data(data)
+    # Initialize DataLoader
+    dataloader = DataLoader(dataset, batch_size=8, shuffle=True, num_workers=0)
+    model = train_tokenizer(data)
 
-"""
-ADD LOGIC FOR DATA LOADER HERE
-
-"""
 
 
 if __name__ == "__main__":

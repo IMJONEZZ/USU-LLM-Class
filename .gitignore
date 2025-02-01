@@ -5,9 +5,11 @@
 # Session Data files
 .RData
 .RDataTmp
+.json
 
 # User-specific files
 .Ruserdata
+SW_EpisodeIV_VI.json
 
 # Example code in package build process
 *-Ex.R
