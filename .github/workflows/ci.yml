@@ -21,12 +21,12 @@ jobs:
       - name: Install dependencies
         run: |
           uv sync
-          pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+          uv pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
 
       - name: Verify Installed Packages
         run: |
-          python -m pip list
-          python -c "import torch; print('PyTorch installed:', torch.__version__)"
+          uv run python -m pip list
+          uv run python -c "import torch; print('PyTorch installed:', torch.__version__)"
 
       - name: Run Format and Lint Checks
         run: |
@@ -35,4 +35,5 @@ jobs:
 
       - name: Run tests
         run: |
+          uv venv  # Ensure virtual environment is activated
           uv run pytest
