@@ -8,21 +8,29 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    - name: Setup uv
-      uses: astral-sh/setup-uv@v5
-    - name: Setup Python
-      uses: actions/setup-python@v5
-      with:
-        python-version-file: ".python-version"
+      - uses: actions/checkout@v4
 
-    - name: Install dependencies
-      run: |
-        uv sync
-    - name: Run Format and Lint Checks
-      run: |
-        uv run ruff check .
-        uv run ruff format --check .
-    - name: Run tests
-      run: |
-        uv run pytest
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: ".python-version"
+
+      - name: Install dependencies
+        run: |
+          uv sync
+          pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+
+      - name: Verify PyTorch Installation
+        run: python -c "import torch; print(torch.__version__)"
+
+      - name: Run Format and Lint Checks
+        run: |
+          uv run ruff check .
+          uv run ruff format --check .
+
+      - name: Run tests
+        run: |
+          uv run pytest
