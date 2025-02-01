@@ -1,41 +1,49 @@
 name: Test, Format, and Lint
 
 on:
+  # Run on every push. Adjust to your preferred triggers.
   push:
-    branches: [ "**" ]
+    branches: ["**"]
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
+      # 1) Check out your code
       - uses: actions/checkout@v4
 
+      # 2) Install uv
       - name: Setup uv
         uses: astral-sh/setup-uv@v5
 
+      # 3) Set up Python from .python-version (3.12, for example)
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version-file: ".python-version"
 
-      - name: Install Dependencies
+      # 4) Create the virtual environment, sync packages, install PyTorch
+      - name: Create Virtual Environment & Sync
         run: |
           uv venv
-          uv sync --no-prune
+          uv sync
           uv pip install --upgrade pip setuptools wheel
           uv pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
 
+      # 5) Verify that PyTorch is installed
       - name: Verify Installed Packages
         run: |
           uv run python -m pip list
           uv run python -c "import torch; print('PyTorch installed:', torch.__version__)"
 
+      # 6) Run lint checks (Ruff) and format checks
       - name: Run Format and Lint Checks
         run: |
           uv run ruff check .
           uv run ruff format --check .
 
+      # 7) Run your tests
       - name: Run tests
         run: |
           uv run pytest
