@@ -16,14 +16,14 @@ def test_dataloader_initialization(sample_dataset):
     assert len(dataloader) == 5 #10 samples with batch_size 2
 
 def test_dataloader_batch_size(sample_dataset):
-    #tests if dataloader makes correct batch size
+    #tests if dataloader makes correct batch size -> PASSED
     batch_size = 3
     dataloader = CustomDataLoader(sample_dataset, batch_size=batch_size, shuffle=False)
     batches = list(dataloader)
 
     assert len(batches) == (len(sample_dataset) + batch_size - 1) // batch_size
     for batch in batches[:-1]:
-        assert batch[0].shape[0] == batch_size
-        assert batch[1].shape[0] == batch_size
+        assert batch[0].shape[0] == batch_size #batch size for inputs
+        assert batch[1].shape[0] == batch_size #batch size for labels
 if __name__ == "__main__":
     pytest.main()
