@@ -3,13 +3,33 @@ name = "usu-llm-class"
 version = "0.1.0"
 description = "Repository for USU LLM Class DSAI-5810/6810"
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.12,<3.13"
 dependencies = [
-    "zenml[server]>=0.73.0",
+    "zenml[server]>=0.70",
+    "torch (>=2.6.0,<3.0.0)",
+    "torchvision (>=0.21.0,<0.22.0)",
+    "torchaudio (>=2.6.0,<3.0.0)",
+    "ipykernel (>=6.29.5,<7.0.0)",
+    "pytest (>=8.3.4,<9.0.0)",
+    "ruff (>=0.9.4,<0.10.0)",
 ]
 
 [dependency-groups]
 dev = [
-    "pytest>=8.3.4",
-    "ruff>=0.9.3",
+    "pytest>=8.3",
+    "ruff>=0.9",
 ]
+
+[[tool.poetry.source]]
+name = "pypi"
+priority = "primary"
+
+[[tool.poetry.source]]
+name = "pytorch"
+url = "https://download.pytorch.org/whl/cu118"
+priority = "explicit"
+
+[tool.poetry.dependencies]
+torch = {source = "pytorch"}
+torchvision = {source = "pytorch"}
+torchaudio = {source = "pytorch"}
