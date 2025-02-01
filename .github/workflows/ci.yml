@@ -18,21 +18,21 @@ jobs:
         with:
           python-version-file: ".python-version"
 
-      - name: Manually Install pip Inside `.venv`
+      - name: Ensure pip is Installed in `.venv`
         run: |
           uv venv  # Ensure virtual environment is created
-          python -m ensurepip --default-pip  # Force install pip in .venv
-          uv pip install --upgrade pip setuptools wheel  # Ensure pip is up-to-date
+          .venv/bin/python -m ensurepip --default-pip  # Force install pip in .venv
+          .venv/bin/python -m pip install --upgrade pip setuptools wheel  # Ensure latest pip version
 
       - name: Install Dependencies
         run: |
           uv sync
-          uv pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+          .venv/bin/python -m pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
 
       - name: Verify Installed Packages
         run: |
-          uv run python -m pip list
-          uv run python -c "import torch; print('PyTorch installed:', torch.__version__)"
+          .venv/bin/python -m pip list
+          .venv/bin/python -c "import torch; print('PyTorch installed:', torch.__version__)"
 
       - name: Run Format and Lint Checks
         run: |
