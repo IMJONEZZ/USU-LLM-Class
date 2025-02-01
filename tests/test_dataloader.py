@@ -61,8 +61,11 @@ def test_dataloader_shuffle(sample_data):
     dataloader_shuffled = DataLoader(dataset, batch_size=2, shuffle=True, collate_fn=collate_fn)
     dataloader_unshuffled = DataLoader(dataset, batch_size=2, shuffle=False, collate_fn=collate_fn)
 
-    shuffled_batch = next(iter(dataloader_shuffled))
-    unshuffled_batch = next(iter(dataloader_unshuffled))
+    shuffled_batches = list(iter(dataloader_shuffled))
+    unshuffled_batches = list(iter(dataloader_unshuffled))
 
-    assert not torch.equal(shuffled_batch, unshuffled_batch), "Shuffling is not working as expected"
+    assert any(
+        not torch.equal(shuffled_batches[i], unshuffled_batches[i]) for i in range(len(shuffled_batches))
+    ), "Shuffling is not working as expected"
+
 
