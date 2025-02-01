@@ -18,10 +18,11 @@ jobs:
         with:
           python-version-file: ".python-version"
 
-      - name: Ensure pip is Installed
+      - name: Manually Install pip Inside `.venv`
         run: |
           uv venv  # Ensure virtual environment is created
-          uv pip install --upgrade pip  # Reinstall pip inside virtual environment
+          python -m ensurepip --default-pip  # Force install pip in .venv
+          uv pip install --upgrade pip setuptools wheel  # Ensure pip is up-to-date
 
       - name: Install Dependencies
         run: |
@@ -40,5 +41,4 @@ jobs:
 
       - name: Run tests
         run: |
-          uv venv  # Ensure virtual environment is activated
           uv run pytest
