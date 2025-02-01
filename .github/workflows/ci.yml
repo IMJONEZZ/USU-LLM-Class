@@ -7,6 +7,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
 
@@ -18,21 +19,17 @@ jobs:
         with:
           python-version-file: ".python-version"
 
-      - name: Ensure pip is Installed in `.venv`
-        run: |
-          uv venv  # Ensure virtual environment is created
-          .venv/bin/python -m ensurepip --default-pip  # Force install pip in .venv
-          .venv/bin/python -m pip install --upgrade pip setuptools wheel  # Ensure latest pip version
-
       - name: Install Dependencies
         run: |
-          uv sync
-          .venv/bin/python -m pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+          uv venv
+          uv sync --no-prune
+          uv pip install --upgrade pip setuptools wheel
+          uv pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
 
       - name: Verify Installed Packages
         run: |
-          .venv/bin/python -m pip list
-          .venv/bin/python -c "import torch; print('PyTorch installed:', torch.__version__)"
+          uv run python -m pip list
+          uv run python -c "import torch; print('PyTorch installed:', torch.__version__)"
 
       - name: Run Format and Lint Checks
         run: |
