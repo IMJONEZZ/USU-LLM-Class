@@ -1,27 +1,6 @@
 import torch
 from torch.utils.data import Dataset, DataLoader, TensorDataset
 
-#Dataset
-# class StarWarsDataset(Dataset):
-#     def __init__(self, data, inputs, labels, max_length):
-#
-#         self.max_length = max_length
-#         self.inputs = inputs
-#         self.labels = labels
-#
-#         # Pad sequences
-#         self.inputs = [seq[:max_length] + [0] * (max_length - len(seq)) for seq in self.inputs]
-#
-#     def __len__(self):
-#         return len(self.inputs)
-#
-#     def __getitem__(self, idx):
-#         return torch.tensor(self.inputs[idx]), self.labels[idx]
-
-#Dataloader
-
-# def create_dataloader(dataset, batch_size=10, shuffle=True):
-#     return DataLoader(dataset, batch_size=batch_size, shuffle=shuffle)
 
 class CustomDataLoader:
     """Custom DataLoader to mimic PyTorch's functionality with more flexibility."""
