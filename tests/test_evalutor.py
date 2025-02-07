@@ -1,6 +1,7 @@
 import torch
 from torch import nn
-from torch.optim import AdamW
+
+# from torch.optim import AdamW
 from torch.utils.data import DataLoader, Dataset
 from transformers import BertTokenizer, BertModel
 import nltk
@@ -55,13 +56,13 @@ class BERT_Dataset(Dataset):
             max_length=self.block_size,
             return_tensors="pt",
         )
-        target_encodings = self.tokenizer(
-            target,
-            truncation=True,
-            padding="max_length",
-            max_length=self.block_size,
-            return_tensors="pt",
-        )
+        # target_encodings = self.tokenizer(
+        #     target,
+        #     truncation=True,
+        #     padding="max_length",
+        #     max_length=self.block_size,
+        #     return_tensors="pt",
+        # )
 
         return {
             "input_ids": encodings["input_ids"].squeeze(0),

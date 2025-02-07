@@ -9,7 +9,8 @@ from torch import nn
 from torch.optim import AdamW
 from torch.utils.data import Dataset, DataLoader
 from transformers import BertTokenizer, BertModel
-import os
+
+# import os
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
@@ -305,7 +306,7 @@ def evaluate_tfidf(model, dataloader, device):
         attention_mask = batch["attention_mask"].to(device)
 
         with torch.no_grad():
-            outputs = model(input_ids, attention_mask)
+            model(input_ids, attention_mask)
 
         # Convert model outputs to text (dummy approach: use original input)
         generated_texts = batch["input_text"]
