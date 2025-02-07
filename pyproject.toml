@@ -8,6 +8,7 @@ dependencies = [
     "nltk>=3.9.1",
     "scikit-learn>=1.6.1",
     "torch>=2.6.0",
+    "transformers>=4.48.2",
     "zenml[server]>=0.73.0",
 ]
 
