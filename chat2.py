@@ -73,13 +73,13 @@ class BERT_Dataset(Dataset):
             max_length=self.block_size,
             return_tensors="pt",
         )
-        target_encodings = self.tokenizer(
-            target,
-            truncation=True,
-            padding="max_length",
-            max_length=self.block_size,
-            return_tensors="pt",
-        )
+        # target_encodings = self.tokenizer(
+        #     target,
+        #     truncation=True,
+        #     padding="max_length",
+        #     max_length=self.block_size,
+        #     return_tensors="pt",
+        # )
 
         return {
             "input_ids": encodings["input_ids"].squeeze(0),
@@ -293,33 +293,6 @@ model = BERT_LLM().to(device)
 optimizer = AdamW(model.parameters(), lr=5e-5)
 loss_fn = nn.CrossEntropyLoss()
 
-# Step 7: Training Loop
-num_epochs = 3
-for epoch in range(num_epochs):
-    model.train()
-    total_loss = 0
-    for batch in train_dataloader:
-        input_ids = batch["input_ids"].to(device)
-        attention_mask = batch["attention_mask"].to(device)
-        optimizer.zero_grad()
-        outputs = model(input_ids, attention_mask)
-        loss = loss_fn(
-            outputs.view(-1, model.classifier.out_features), input_ids.view(-1)
-        )
-        loss.backward()
-        optimizer.step()
-        total_loss += loss.item()
-
-    print(f"Epoch {epoch + 1}: Loss = {total_loss / len(train_dataloader):.4f}")
-
-    # Validation
-    print("\nValidation Evaluation:")
-    val_score = evaluate_tfidf(model, val_dataloader, device)
-    print(f"TF-IDF Cosine Similarity Score: {val_score:.4f}")
-
-# Step 8: Save Model
-torch.save(model.state_dict(), "bert_llm.pth")
-
 
 # Step 9: Define TF-IDF Evaluation
 def evaluate_tfidf(model, dataloader, device):
@@ -349,6 +322,34 @@ def evaluate_tfidf(model, dataloader, device):
 
     scores = cosine_similarity(generated_tfidf, reference_tfidf).diagonal()
     return np.mean(scores)
+
+
+# Step 7: Training Loop
+num_epochs = 3
+for epoch in range(num_epochs):
+    model.train()
+    total_loss = 0
+    for batch in train_dataloader:
+        input_ids = batch["input_ids"].to(device)
+        attention_mask = batch["attention_mask"].to(device)
+        optimizer.zero_grad()
+        outputs = model(input_ids, attention_mask)
+        loss = loss_fn(
+            outputs.view(-1, model.classifier.out_features), input_ids.view(-1)
+        )
+        loss.backward()
+        optimizer.step()
+        total_loss += loss.item()
+
+    print(f"Epoch {epoch + 1}: Loss = {total_loss / len(train_dataloader):.4f}")
+
+    # Validation
+    print("\nValidation Evaluation:")
+    val_score = evaluate_tfidf(model, val_dataloader, device)
+    print(f"TF-IDF Cosine Similarity Score: {val_score:.4f}")
+
+# Step 8: Save Model
+torch.save(model.state_dict(), "bert_llm.pth")
 
 
 # Step 10: Final Testing
