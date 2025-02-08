@@ -1,4 +1,4 @@
-from typing import Optional, Tuple, Dict
+from typing import Optional, Tuple
 from zenml import pipeline
 from zenml.logger import get_logger
 from data_loader import star_wars_data_loader

@@ -1,14 +1,10 @@
 import pytest
 import numpy as np
-import pandas as pd
-import torch
-from transformers import BertGenerationConfig, BertGenerationDecoder
 import sys
 import os
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from model_evaluator import bert_evaluator  # Import the main function
 
 # Import the utility functions directly
 from model_evaluator import (
@@ -17,7 +13,6 @@ from model_evaluator import (
     evaluate_batch,
     compute_sequence_accuracy,
     compute_token_accuracy,
-    generate_text,
     tokens_to_text,
 )
 

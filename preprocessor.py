@@ -6,7 +6,6 @@ from zenml import step, log_metadata
 from zenml.logger import get_logger
 import re
 from collections import Counter
-import json
 
 logger = get_logger(__name__)
 

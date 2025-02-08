@@ -6,10 +6,9 @@ import gc
 from torch.utils.data import Dataset, DataLoader
 from transformers import (
     BertGenerationConfig,
-    BertGenerationEncoder,
     BertGenerationDecoder,
 )
-from transformers import AdamW, get_linear_schedule_with_warmup
+from transformers import get_linear_schedule_with_warmup
 from zenml import step, log_metadata
 from zenml.logger import get_logger
 

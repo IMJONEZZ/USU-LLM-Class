@@ -1,4 +1,4 @@
-from typing import Tuple, Optional
+from typing import Tuple
 import pandas as pd
 from datasets import load_dataset
 from typing_extensions import Annotated
