@@ -135,12 +135,14 @@ class StarWarsTokenizer(BaseEstimator, TransformerMixin):
 @step
 def star_wars_preprocessor(
     train_data: pd.DataFrame,
+    validation_data: pd.DataFrame,
     test_data: pd.DataFrame,
     vocab_size: int = 1000,
     min_subword_freq: int = 5,
     max_sequence_length: Optional[int] = None
 ) -> Tuple[
     Annotated[pd.DataFrame, "processed_train"],
+    Annotated[pd.DataFrame, "processed_validation"],
     Annotated[pd.DataFrame, "processed_test"],
     Annotated[Dict, "tokenizer_config"]
 ]:
@@ -150,13 +152,14 @@ def star_wars_preprocessor(
     
     Args:
         train_data: Training data DataFrame
+        validation_data: Validation data DataFrame
         test_data: Test data DataFrame
         vocab_size: Size of the vocabulary to build
         min_subword_freq: Minimum frequency for subword tokens
         max_sequence_length: Maximum sequence length (optional)
         
     Returns:
-        Processed training data, test data, and the tokenizer configuration dictionary
+        Processed training data, validation data, test data, and the tokenizer configuration dictionary
     """
     try:
         # Initialize tokenizer
@@ -165,20 +168,22 @@ def star_wars_preprocessor(
             min_subword_freq=min_subword_freq
         )
         
-        # Fit and transform training data
+        # Fit on training data only and transform all datasets
         processed_train = tokenizer.fit_transform(train_data)
-        
-        # Transform test data
+        processed_validation = tokenizer.transform(validation_data)
         processed_test = tokenizer.transform(test_data)
         
-        # Create metadata dictionary with only valid types
+        # Create metadata dictionary
         metadata = {
             "vocab_size": vocab_size,
             "min_subword_freq": min_subword_freq,
-            "vocab_length": len(tokenizer.str_to_int)
+            "vocab_length": len(tokenizer.str_to_int),
+            "train_size": len(processed_train),
+            "validation_size": len(processed_validation),
+            "test_size": len(processed_test)
         }
         
-        # Only add max_sequence_length if it's not None
+        # Add max_sequence_length if provided
         if max_sequence_length is not None:
             metadata["max_sequence_length"] = max_sequence_length
             
@@ -188,10 +193,14 @@ def star_wars_preprocessor(
         # Convert tokenizer to dictionary for storage
         tokenizer_config = tokenizer.to_dict()
         
-        logger.info(f"Processed {len(processed_train)} training and {len(processed_test)} test samples")
+        logger.info(
+            f"Processed {len(processed_train)} training, "
+            f"{len(processed_validation)} validation, and "
+            f"{len(processed_test)} test samples"
+        )
         logger.info(f"Final vocabulary size: {len(tokenizer.str_to_int)}")
         
-        return processed_train, processed_test, tokenizer_config
+        return processed_train, processed_validation, processed_test, tokenizer_config
         
     except Exception as e:
         logger.error(f"Error in preprocessing: {str(e)}")
