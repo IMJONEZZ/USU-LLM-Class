@@ -1,6 +1,5 @@
 import pytest
 from unittest.mock import patch
-import torch
 from torch.utils.data import DataLoader
 from evaluator import evaluate_model
 from main import assignment_4_pipeline, TextDataset
@@ -34,7 +33,6 @@ def mock_dataloader():
 
 def test_evaluate_model_success(mock_dataloader):
     """Test for successful model evaluation."""
-    tokenizer = BertTokenizerFast.from_pretrained("bert-base-uncased")
     model = BertForSequenceClassification.from_pretrained("bert-base-uncased")
     model.eval()
 
@@ -52,7 +50,6 @@ def test_evaluate_model_invalid_input():
 
 def test_evaluate_model_loss(mock_dataloader):
     """Test to ensure that loss is returned and is a numeric value."""
-    tokenizer = BertTokenizerFast.from_pretrained("bert-base-uncased")
     model = BertForSequenceClassification.from_pretrained("bert-base-uncased")
     model.eval()
 

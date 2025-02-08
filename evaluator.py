@@ -1,6 +1,5 @@
 from transformers import BertTokenizerFast, BertForSequenceClassification
 import torch
-from main import assignment_4_pipeline
 from torch.utils.data import DataLoader
 from zenml.client import Client
 

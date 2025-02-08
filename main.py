@@ -1,8 +1,6 @@
 from zenml import pipeline, step
 import json
 import re
-import collections
-import torch
 from torch.utils.data import Dataset, DataLoader
 from transformers import BertTokenizerFast
 
