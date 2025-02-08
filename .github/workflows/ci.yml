@@ -14,7 +14,7 @@ jobs:
     - name: Setup Python
       uses: actions/setup-python@v5
       with:
-        python-version-file: ".python-version"
+        python-version: "3.12.7"
 
     - name: Install dependencies
       run: |
@@ -27,4 +27,4 @@ jobs:
         uv run ruff format --check .
     - name: Run tests
       run: |
-        python -m pytest tests/
+        uv run pytest
