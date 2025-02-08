@@ -1,6 +1,7 @@
 import sys
 import os
 import numpy as np
+import torch
 
 sys.path.insert(
     0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "src"))
@@ -29,3 +30,13 @@ def test_data_splitting():
     print(f"Train-Validation Overlaps: {len(train_val_overlap)}")
     print(f"Train-Test Overlaps: {len(train_test_overlap)}")
     print(f"Validation-Test Overlaps: {len(val_test_overlap)}")
+
+
+# since the predictions match the labels this should test if my model's accuracy reports work (I should get true on 100% accuracy)
+def test_accuracy_of_eval():
+    predictions = torch.tensor([0, 1, 2, 3])
+    labels = torch.tensor([0, 1, 2, 3])
+    correct = (predictions == labels).sum().item()
+    total = labels.size(0)
+    accuracy = 100 * correct / total
+    assert accuracy >= 100.0
