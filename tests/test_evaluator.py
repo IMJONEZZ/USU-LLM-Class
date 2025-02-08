@@ -2,7 +2,6 @@ import sys
 import os
 import numpy as np
 
-# this allows me to access my data_preprocessor module
 sys.path.insert(
     0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "src"))
 )
