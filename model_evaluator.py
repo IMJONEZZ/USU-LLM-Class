@@ -107,16 +107,22 @@ def compute_sequence_accuracy(prediction: List[int],
     ref_seq = [t for t in reference if t not in [0, 1, 2]]
     return float(pred_seq == ref_seq)
 
-def compute_token_accuracy(prediction: List[int], 
-                         reference: List[int]) -> float:
-    """Compute token-level accuracy."""
+def compute_token_accuracy(prediction: List[int], reference: List[int]) -> float:
     pred_seq = [t for t in prediction if t not in [0, 1, 2]]
     ref_seq = [t for t in reference if t not in [0, 1, 2]]
-    min_len = min(len(pred_seq), len(ref_seq))
-    if min_len == 0:
+    
+    # If reference is empty, return 0
+    if len(ref_seq) == 0:
         return 0.0
-    matches = sum(p == r for p, r in zip(pred_seq[:min_len], ref_seq[:min_len]))
-    return float(matches) / min_len
+        
+    # Get minimum length for comparison
+    min_len = min(len(pred_seq), len(ref_seq))
+    
+    # Count matches up to the minimum length
+    matches = sum(1 for i in range(min_len) if pred_seq[i] == ref_seq[i])
+    
+    # Return accuracy based on reference length (not minimum length)
+    return float(matches) / len(ref_seq)
 
 @step
 def bert_evaluator(
