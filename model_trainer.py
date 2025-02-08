@@ -28,7 +28,7 @@ class StarWarsDataset(Dataset):
             if isinstance(tokens, str):
                 try:
                     tokens = eval(tokens)
-                except:
+                except (SyntaxError, ValueError):
                     continue
 
             if not isinstance(tokens, (list, np.ndarray)):

@@ -41,19 +41,19 @@ def test_analyze_generation_errors():
     errors = analyze_generation_errors(
         "short text", "this is a much longer reference text"
     )
-    assert errors["truncation"] == True
+    assert errors["truncation"]
 
     # Test repetition detection
     errors = analyze_generation_errors("the cat the cat is here", "original text")
-    assert errors["repetition"] == True
+    assert errors["repetition"]
 
     # Test generic response detection
     errors = analyze_generation_errors("um well maybe", "specific response")
-    assert errors["generic"] == True
+    assert errors["generic"]
 
     # Test incoherence detection
     errors = analyze_generation_errors("incomplete thought", "complete sentence.")
-    assert errors["incoherent"] == True
+    assert errors["incoherent"]
 
     # Test no errors case
     errors = analyze_generation_errors(
