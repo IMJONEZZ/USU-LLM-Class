@@ -8,6 +8,7 @@ from model_evaluator import bert_evaluator
 
 logger = get_logger(__name__)
 
+
 @pipeline
 def star_wars_pipeline(
     random_state: int = 42,
@@ -20,10 +21,10 @@ def star_wars_pipeline(
     num_epochs: int = 3,
     learning_rate: float = 2e-5,
     max_new_tokens: int = 20,
-    is_inference: bool = False
+    is_inference: bool = False,
 ) -> Tuple:
     """Pipeline for processing Star Wars dialogue data and training/evaluating BERT model.
-    
+
     Args:
         random_state: Random seed for reproducibility
         train_ratio: Proportion of data to use for training
@@ -42,18 +43,20 @@ def star_wars_pipeline(
         random_state=random_state,
         is_inference=is_inference,
         train_ratio=train_ratio,
-        validation_ratio=validation_ratio
+        validation_ratio=validation_ratio,
     )
-    
-    processed_train, processed_val, processed_test, tokenizer_config = star_wars_preprocessor(
-        train_data=train_data,
-        validation_data=val_data,
-        test_data=test_data,
-        vocab_size=vocab_size,
-        min_subword_freq=min_subword_freq,
-        max_sequence_length=max_sequence_length
+
+    processed_train, processed_val, processed_test, tokenizer_config = (
+        star_wars_preprocessor(
+            train_data=train_data,
+            validation_data=val_data,
+            test_data=test_data,
+            vocab_size=vocab_size,
+            min_subword_freq=min_subword_freq,
+            max_sequence_length=max_sequence_length,
+        )
     )
-    
+
     # Train BERT model
     model_artifact = bert_trainer(
         train_data=processed_train,
@@ -62,9 +65,9 @@ def star_wars_pipeline(
         batch_size=batch_size,
         max_length=max_sequence_length,
         num_epochs=num_epochs,
-        learning_rate=learning_rate
+        learning_rate=learning_rate,
     )
-    
+
     # Evaluate model
     evaluation_results = bert_evaluator(
         model_artifact=model_artifact,
@@ -72,7 +75,14 @@ def star_wars_pipeline(
         test_data=processed_test,
         tokenizer_config=tokenizer_config,
         max_sequence_length=max_sequence_length,
-        max_new_tokens=max_new_tokens
+        max_new_tokens=max_new_tokens,
     )
-    
-    return processed_train, processed_val, processed_test, tokenizer_config, model_artifact, evaluation_results
+
+    return (
+        processed_train,
+        processed_val,
+        processed_test,
+        tokenizer_config,
+        model_artifact,
+        evaluation_results,
+    )
