@@ -1,6 +1,5 @@
 import re
 from collections import Counter
-from tabnanny import check
 
 import torch
 import torch.nn as nn
