@@ -7,13 +7,9 @@ requires-python = ">=3.12"
 dependencies = [
     "zenml[server]>=0.73.0",
     "ruff>=0.9.3",
+    "pytest>=8.3.4",
 ]
 
 [tool.pytest.ini_options]
 pythonpath = "."
 testpaths = ["tests"]
-
-[project.optional-dependencies]
-dev = [
-    "pytest>=8.3.4",
-]
