@@ -1,6 +1,5 @@
 import sys
 import os
-import pytest
 import torch
 import numpy as np
 
@@ -9,7 +8,7 @@ sys.path.insert(
     0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "src"))
 )
 
-from pipeline import tokenize_data, train_model, evaluate_model
+from pipeline import tokenize_data
 
 
 def tensor_set(tensor_list):
