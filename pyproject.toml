@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "zenml[server]>=0.73.0",
+    "ruff>=0.9.3",
 ]
 
 [tool.pytest.ini_options]
@@ -15,5 +16,4 @@ testpaths = ["tests"]
 [project.optional-dependencies]
 dev = [
     "pytest>=8.3.4",
-    "ruff>=0.9.3",
 ]
