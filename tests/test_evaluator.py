@@ -1,7 +1,7 @@
 import sys
 import os
-import torch
 import numpy as np
+import torch
 
 # this allows me to access my data_preprocessor module
 sys.path.insert(
