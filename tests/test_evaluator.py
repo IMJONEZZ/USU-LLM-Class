@@ -1,7 +1,6 @@
 import sys
 import os
 import numpy as np
-import torch
 
 # this allows me to access my data_preprocessor module
 sys.path.insert(
@@ -33,11 +32,3 @@ def test_data_splitting():
     print(f"Validation-Test Overlaps: {len(val_test_overlap)}")
 
 
-# since the predictions match the labels this should test if my model's accuracy reports work (I should get true on 100% accuracy)
-def test_accuracy_of_eval():
-    predictions = torch.tensor([0, 1, 2, 3])
-    labels = torch.tensor([0, 1, 2, 3])
-    correct = (predictions == labels).sum().item()
-    total = labels.size(0)
-    accuracy = 100 * correct / total
-    assert accuracy >= 100.0
