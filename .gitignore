@@ -3,6 +3,10 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+#dataset
+src/starwarsdataset.json
+src/starwardataset.json
+
 # C extensions
 *.so
 
