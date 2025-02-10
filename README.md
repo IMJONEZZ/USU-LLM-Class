@@ -38,6 +38,6 @@ The test is the file 'test_dataloader.py' under the tests folder
 
 1.Handle missing files by raising errors.
 
-Make batch_size and shuffle configurable via function arguments.
+2.Make batch_size and shuffle configurable via function arguments.
 
 
