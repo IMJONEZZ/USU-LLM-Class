@@ -1,66 +1,36 @@
-# USU LLM Class
+# How my code works? 
 
-Repository for USU LLM Class DSAI-5810/6810
+The data loder is under the folder HW3
 
-## Contributing
+2. SWDataset Class: Stores a dataset (self.data) as a list of dictionaries. Implements __len__ to return the dataset length. Implements __getitem__ to return a single data sample by index.  
 
-### Set up your environment
+3. load_data step: Opens "SW_EpisodeIV_VI.json" and reads it into a Python dictionary. Initializes an SWDataset instance with the data. Wraps SWDataset in a PyTorch DataLoader with batch_size = 2 and shuffle = True. Returns the DataLoader in a dictionary for easy pipeline integration.
 
-Install `uv` using the instructions found here: <https://docs.astral.sh/uv/getting-started/installation/>
+4. ZenML Pipeline (data_process_pipeline): Defines a step (load_data()) and connects it into a pipeline. When executed, it triggers load_data(), ensuring modularity. 
 
-### Add dependencies
+# Why this approach? 
 
-If you need to add dependencies to run your code, for example cowsay, you can do so with:
+1. Modular Design: SWDataset is reusable and works seamlessly with PyTorch.
 
-```bash
-uv add cowsay
-```
+2. Scalability: Using DataLoader enables efficient batch processing.
 
-### Change the code
+3. Pipeline Integration: ZenML ensures flexibility and reproducibility in workflows
 
-Update the code to complete your homework. You can run your experiment like so:
+4. Shuffling: Ensures model training (in the future) generalizes well.
 
-```bash
-uv run main.py
-```
+# Why I Wrote These Tests? 
 
-If you prefer working in a jupyter notebook setting you can run:
+1. Ensures dataset length is correctly reported. 
 
-```bash
-uv run --with jupyter jupyter lab
-```
+2. Checks individual item retrieval from SWDataset. 
 
-### Run formatting/linting/tests
+3. Verifies that load_data loads data correctly and returns a DataLoader. 
 
-```bash
-uv run ruff format
-uv run ruff check
-uv run pytest
-```
+4. Ensures the entire ZenML pipeline runs without errors. 
 
-### ZenML
+5. Checks that DataLoader correctly batches data.
 
-Create your server with:
+6. 	Ensures shuffling works by comparing two iterations.
 
-```bash
-docker run -it -d -p 8080:8080 --name zenml zenmldocker/zenml-server
-```
 
-You will need to visit the ZenML dashboard at http://localhost:8080 and activate the server by creating an initial admin user account. You can then connect your client to the server with the web login flow:
 
-```bash
-zenml login http://localhost:8080
-```
-
-You can stop it and start it back up again with:
-
-```bash
-docker stop zenml
-docker start zenml
-```
-
-To delete the server and start over you can run:
-
-```bash
-docker rm zenml
-```

@@ -22,7 +22,7 @@ def load_data() -> dict:
         data = json.load(f)
 
     dataset = SWDataset(data)
-    dataloader = DataLoader(dataset, batch_size=2, shuffle=True)
+    dataloader = DataLoader(dataset, batch_size = 2, shuffle=True)
 
     return {"dataloader": dataloader}
 

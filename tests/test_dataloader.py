@@ -23,13 +23,14 @@ def test_swdataset_length(sample_data):
     dataset = SWDataset(sample_data)
     assert len(dataset) == len(sample_data)
 
+### 2. 
 def test_swdataset_getitem(sample_data):
     """Ensure SWDataset correctly retrieves items."""
     dataset = SWDataset(sample_data)
     assert dataset[0]["Character"] == "THREEPIO"
     assert dataset[1]["Line"] == "The Force is strong with this one."
 
-### 2. Test the load_data Step
+### 3. Test the load_data Step
 
 def test_load_data(tmp_path):
     """Test load_data with a real JSON file."""
@@ -60,7 +61,7 @@ def test_load_data(tmp_path):
     assert len(batches) > 0
     assert len(batches[0]) == 2  # Batch size is 2
 
-### 3. Test the Full Pipeline Execution
+### 4. Test the Full Pipeline Execution
 def test_pipeline_execution():
     """Ensure the full pipeline runs without errors."""
     try:
