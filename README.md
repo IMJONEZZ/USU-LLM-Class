@@ -32,7 +32,12 @@ The test is the file 'test_dataloader.py' under the tests folder
 
 5. Checks that DataLoader correctly batches data.
 
-6. 	Ensures shuffling works by comparing two iterations.
+6. Ensures shuffling works by comparing two iterations.
 
+# Some potential improvement? 
+
+1.Handle missing files by raising errors. 
+
+2. Make batch_size and shuffle configurable via function arguments.
 
 
