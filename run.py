@@ -1,11 +1,11 @@
 import json
-from typing import Optional, List, Dict, Tuple
+from typing import Optional, List, Dict
 import torch
 from torch import nn
 from torch.utils.data import Dataset, DataLoader
 from torch.nn.utils.rnn import pad_sequence
 from zenml import pipeline, step
-import torch.nn.functional as F  # for softmax
+import torch.nn.functional as F 
 
 # --------------------------------------------------
 # THE SIMPLETOKENIZER CLASS
