@@ -68,7 +68,9 @@ def test_next_token_dataset_contents(dummy_dataset):
       If sequence is [1, 2, 3], then x=[1, 2], y=[2, 3].
     """
     for idx, (x_tensor, y_tensor) in enumerate(dummy_dataset):
-        original_seq = dummy_dataset.x_data[idx].tolist() + [dummy_dataset.y_data[idx][-1].item()]  # reconstruct
+        original_seq = dummy_dataset.x_data[idx].tolist() + [
+            dummy_dataset.y_data[idx][-1].item()
+        ]  # reconstruct
         # Example: x=[1,2], y=[2,3], so combined = [1,2,3]
 
         # Check that x and y line up properly
@@ -76,7 +78,9 @@ def test_next_token_dataset_contents(dummy_dataset):
         for i, x_val in enumerate(x_tensor.tolist()):
             assert x_val == original_seq[i], f"x mismatch at sample {idx}, position {i}"
         for i, y_val in enumerate(y_tensor.tolist()):
-            assert y_val == original_seq[i + 1], f"y mismatch at sample {idx}, position {i}"
+            assert y_val == original_seq[i + 1], (
+                f"y mismatch at sample {idx}, position {i}"
+            )
 
 
 def test_collate_fn_shape(dummy_dataset):
@@ -155,13 +159,17 @@ def test_gather_detailed_eval_info(dummy_dataloader, dummy_model):
             "confidence_in_true_token",
             "is_correct",
         }
-        assert set(token_info.keys()) == expected_keys, "Missing or extra keys in token info."
+        assert set(token_info.keys()) == expected_keys, (
+            "Missing or extra keys in token info."
+        )
 
         # Confidence should be between 0 and 1
         conf = token_info["confidence_in_true_token"]
         assert 0.0 <= conf <= 1.0, "Confidence should be between 0 and 1."
 
         # is_correct should be a bool
-        assert isinstance(token_info["is_correct"], bool), "is_correct should be boolean."
+        assert isinstance(token_info["is_correct"], bool), (
+            "is_correct should be boolean."
+        )
 
     # This verifies the structure is as intended for potential 'smart learning' usage.

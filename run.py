@@ -5,7 +5,8 @@ from torch import nn
 from torch.utils.data import Dataset, DataLoader
 from torch.nn.utils.rnn import pad_sequence
 from zenml import pipeline, step
-import torch.nn.functional as F 
+import torch.nn.functional as F
+
 
 # --------------------------------------------------
 # THE SIMPLETOKENIZER CLASS
@@ -23,6 +24,7 @@ class SimpleTokenizer:
     def decode(self, ids: list[int]) -> str:
         return " ".join([self.int_to_str.get(i, "<UNK>") for i in ids])
 
+
 # --------------------------------------------------
 # 1) LOAD DATA
 # --------------------------------------------------
@@ -35,6 +37,7 @@ def load_data() -> str:
         data = json.load(f)
     lines = [item["Line"] for item in data if "Line" in item]
     return " ".join(lines)
+
 
 # --------------------------------------------------
 # 2) BUILD VOCABULARY
@@ -49,6 +52,7 @@ def build_vocab(text: str) -> dict:
     vocab.update({token: i for i, token in enumerate(sorted(set(tokens)), start=1)})
     return vocab
 
+
 # --------------------------------------------------
 # 3) ENCODE TEXT
 # --------------------------------------------------
@@ -59,17 +63,22 @@ def encode_text(text: str, vocab: dict) -> List[List[int]]:
     """
     sentences = text.split(".")
     tokenizer = SimpleTokenizer(vocab=vocab)
-    tokenized = [tokenizer.encode(sentence) for sentence in sentences if sentence.strip()]
+    tokenized = [
+        tokenizer.encode(sentence) for sentence in sentences if sentence.strip()
+    ]
     # Remove any empty after tokenization
     return [seq for seq in tokenized if len(seq) > 1]
+
 
 # --------------------------------------------------
 # SPLIT DATA INTO TRAIN, VAL, TEST
 # --------------------------------------------------
 @step
-def split_data(tokenized_sequences: List[List[int]], 
-               train_ratio: float = 0.7,
-               val_ratio: float = 0.15) -> Dict[str, List[List[int]]]:
+def split_data(
+    tokenized_sequences: List[List[int]],
+    train_ratio: float = 0.7,
+    val_ratio: float = 0.15,
+) -> Dict[str, List[List[int]]]:
     """
     Splits tokenized sequences into train, val, and test sets.
     """
@@ -81,11 +90,8 @@ def split_data(tokenized_sequences: List[List[int]],
     val_data = tokenized_sequences[train_end:val_end]
     test_data = tokenized_sequences[val_end:]
 
-    return {
-        "train": train_data,
-        "val": val_data,
-        "test": test_data
-    }
+    return {"train": train_data, "val": val_data, "test": test_data}
+
 
 # --------------------------------------------------
 # CUSTOM DATASET CLASS (for next-token prediction)
@@ -96,6 +102,7 @@ class NextTokenDataset(Dataset):
       x: all but the last token
       y: all but the first token  (the "next token" for each position)
     """
+
     def __init__(self, tokenized_sequences: List[List[int]]):
         self.x_data = []
         self.y_data = []
@@ -113,6 +120,7 @@ class NextTokenDataset(Dataset):
     def __getitem__(self, idx):
         return self.x_data[idx], self.y_data[idx]
 
+
 # --------------------------------------------------
 # COLLATE FUNCTION FOR PADDING
 # --------------------------------------------------
@@ -125,27 +133,35 @@ def collate_fn(batch, max_len=50):
     xs, ys = zip(*batch)  # separate x and y
 
     padded_x = pad_sequence(xs, batch_first=True, padding_value=0)
-    padded_y = pad_sequence(ys, batch_first=True, padding_value=-100)  # -100 is ignored_idx in CrossEntropy
+    padded_y = pad_sequence(
+        ys, batch_first=True, padding_value=-100
+    )  # -100 is ignored_idx in CrossEntropy
 
     # If needed, ensure every sequence is exactly max_len
     # We'll do it for both x and y
     if padded_x.shape[1] < max_len:
         pad_amount = max_len - padded_x.shape[1]
-        padded_x = torch.cat([
-            padded_x, torch.zeros((padded_x.shape[0], pad_amount), dtype=torch.long)
-        ], dim=1)
+        padded_x = torch.cat(
+            [padded_x, torch.zeros((padded_x.shape[0], pad_amount), dtype=torch.long)],
+            dim=1,
+        )
     else:
         padded_x = padded_x[:, :max_len]
 
     if padded_y.shape[1] < max_len:
         pad_amount = max_len - padded_y.shape[1]
-        padded_y = torch.cat([
-            padded_y, torch.full((padded_y.shape[0], pad_amount), -100, dtype=torch.long)
-        ], dim=1)
+        padded_y = torch.cat(
+            [
+                padded_y,
+                torch.full((padded_y.shape[0], pad_amount), -100, dtype=torch.long),
+            ],
+            dim=1,
+        )
     else:
         padded_y = padded_y[:, :max_len]
 
     return padded_x, padded_y
+
 
 # --------------------------------------------------
 # SIMPLE MODEL FOR NEXT-TOKEN PREDICTION
@@ -154,6 +170,7 @@ class SimpleLanguageModel(nn.Module):
     """
     A minimal model that takes token IDs -> embeddings -> linear -> predicts next token IDs.
     """
+
     def __init__(self, vocab_size: int, embed_dim: int = 32):
         super().__init__()
         self.embed = nn.Embedding(vocab_size, embed_dim)
@@ -164,17 +181,17 @@ class SimpleLanguageModel(nn.Module):
         x: [batch_size, seq_len] of token IDs
         returns: [batch_size, seq_len, vocab_size]
         """
-        embeddings = self.embed(x)                # [batch, seq_len, embed_dim]
-        logits = self.fc(embeddings)              # [batch, seq_len, vocab_size]
+        embeddings = self.embed(x)  # [batch, seq_len, embed_dim]
+        logits = self.fc(embeddings)  # [batch, seq_len, vocab_size]
         return logits
+
 
 # --------------------------------------------------
 # EVALUATION FUNCTION
 # --------------------------------------------------
-def evaluate(model: nn.Module,
-             dataloader: DataLoader,
-             criterion: nn.Module,
-             device: torch.device) -> float:
+def evaluate(
+    model: nn.Module, dataloader: DataLoader, criterion: nn.Module, device: torch.device
+) -> float:
     """
     Runs inference on the dataloader and calculates avg loss.
     """
@@ -190,13 +207,12 @@ def evaluate(model: nn.Module,
     avg_loss = total_loss / len(dataloader) if len(dataloader) > 0 else 0
     return avg_loss
 
+
 # --------------------------------------------------
 # GATHER DETAILED EVAL INFO FOR "SMART LEARNING"
 # --------------------------------------------------
 def gather_detailed_eval_info(
-    model: nn.Module,
-    dataloader: DataLoader,
-    device: torch.device
+    model: nn.Module, dataloader: DataLoader, device: torch.device
 ) -> List[Dict]:
     """
     Iterates over the dataloader, records per-token predictions vs.
@@ -230,18 +246,21 @@ def gather_detailed_eval_info(
 
                     pred_token = predictions[b_idx, t_idx].item()
                     confidence_correct = probs[b_idx, t_idx, true_token].item()
-                    is_correct = (pred_token == true_token)
+                    is_correct = pred_token == true_token
 
-                    sample_info.append({
-                        "true_token_id": true_token,
-                        "pred_token_id": pred_token,
-                        "confidence_in_true_token": confidence_correct,
-                        "is_correct": is_correct
-                    })
+                    sample_info.append(
+                        {
+                            "true_token_id": true_token,
+                            "pred_token_id": pred_token,
+                            "confidence_in_true_token": confidence_correct,
+                            "is_correct": is_correct,
+                        }
+                    )
 
                 results.append(sample_info)
 
     return results
+
 
 # --------------------------------------------------
 # TRAINING STEP
@@ -250,14 +269,14 @@ def gather_detailed_eval_info(
 def train_model(
     data_splits: Dict[str, List[List[int]]],
     batch_size: int = 8,
-    num_workers: int = 0,   # 0 if on Windows
+    num_workers: int = 0,  # 0 if on Windows
     epochs: int = 2,
-    embed_dim: int = 32
+    embed_dim: int = 32,
 ) -> Dict[str, str]:
     """
     Trains a simple language model for next-token prediction.
     Also runs validation after each epoch to show performance,
-    then tests the final model on the test set. 
+    then tests the final model on the test set.
     Finally, gathers additional evaluation output that can
     aid in future "smart learning."
     """
@@ -265,8 +284,8 @@ def train_model(
     # Create Datasets
     # --------------------------------------------------
     train_dataset = NextTokenDataset(data_splits["train"])
-    val_dataset   = NextTokenDataset(data_splits["val"])
-    test_dataset  = NextTokenDataset(data_splits["test"])
+    val_dataset = NextTokenDataset(data_splits["val"])
+    test_dataset = NextTokenDataset(data_splits["test"])
 
     # We'll figure out vocab_size from max token ID in all sets
     all_seqs = data_splits["train"] + data_splits["val"] + data_splits["test"]
@@ -325,7 +344,9 @@ def train_model(
 
         avg_train_loss = total_loss / len(train_loader) if len(train_loader) > 0 else 0
         val_loss = evaluate(model, val_loader, criterion, device)
-        print(f"Epoch {epoch+1}/{epochs} | Train Loss: {avg_train_loss:.4f} | Val Loss: {val_loss:.4f}")
+        print(
+            f"Epoch {epoch + 1}/{epochs} | Train Loss: {avg_train_loss:.4f} | Val Loss: {val_loss:.4f}"
+        )
 
     # --------------------------------------------------
     # Final Test Evaluation
@@ -350,8 +371,9 @@ def train_model(
         "train_loss": f"{avg_train_loss:.4f}",
         "val_loss": f"{val_loss:.4f}",
         "test_loss": f"{test_loss:.4f}",
-        "detail_count": f"{len(detailed_test_info)}"
+        "detail_count": f"{len(detailed_test_info)}",
     }
+
 
 # --------------------------------------------------
 # PIPELINE DEFINITION
@@ -372,6 +394,7 @@ def train_eval_pipeline():
     token_ids = encode_text(text, vocab)
     data_splits = split_data(token_ids)
     train_model(data_splits)
+
 
 # --------------------------------------------------
 # RUN THE PIPELINE
