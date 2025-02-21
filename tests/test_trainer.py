@@ -4,6 +4,10 @@ from unittest.mock import patch
 from datasets import Dataset, DatasetDict
 import shutil
 from transformers import TrainingArguments
+import torch
+
+if not torch.cuda.is_available():
+    pytest.skip("Skipping tests: NVIDIA GPU required", allow_module_level=True)
 
 
 @pytest.fixture

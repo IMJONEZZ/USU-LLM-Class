@@ -175,3 +175,4 @@ cython_debug/
 
 temp_test_output
 saved_models
+unsloth_compiled_cache
