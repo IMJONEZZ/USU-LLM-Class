@@ -1,9 +1,12 @@
+
 import re
 from collections import Counter
 
-from datasets import DatasetDict, load_dataset
+from datasets import load_dataset
+from datasets import DatasetDict
 
 from tokenizer import ImprovedTokenizer
+
 
 
 def process_data():
@@ -64,10 +67,14 @@ def process_data():
     validation_data = tokenize_dataset(dataset["validation"])
     test_data = tokenize_dataset(dataset["test"])
 
-    return {
+    processed_data = {
         "train": train_data,
         "validation": validation_data,
         "test": test_data,
-        "vocab size": vocab_size,
-        "label_to_int": label_to_int,  # Return the label mapping
+        "vocab_size": vocab_size,
+        "label_to_int": label_to_int,  # Label mapping
+        "vocab": vocab,  # ✅ Store vocab for tokenizer initialization
+        "special_tokens": special_tokens,  # ✅ Store special tokens
     }
+
+    return processed_data
