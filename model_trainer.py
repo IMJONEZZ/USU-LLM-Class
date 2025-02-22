@@ -14,6 +14,7 @@ from zenml.logger import get_logger
 
 logger = get_logger(__name__)
 
+
 class StarWarsDataset(Dataset):
     """Custom dataset for Star Wars dialogue data."""
 
@@ -29,7 +30,9 @@ class StarWarsDataset(Dataset):
                 if isinstance(tokens, str):
                     try:
                         # Only eval if it looks like a list
-                        if tokens.strip().startswith('[') and tokens.strip().endswith(']'):
+                        if tokens.strip().startswith("[") and tokens.strip().endswith(
+                            "]"
+                        ):
                             tokens = eval(tokens)
                         else:
                             continue
