@@ -1,2 +1,4 @@
-def hello_world(name: str) -> str:
-    return f"Hello, {name}!"
+from pipeline import train_eval_pipeline
+
+if __name__ == "__main__":
+    train_eval_pipeline()
