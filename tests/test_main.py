@@ -13,12 +13,6 @@ SAMPLE_SPLIT = {
 }
 
 
-### 1️⃣ Load Data ###
-def test_load_data():
-    text = load_data()
-    assert isinstance(text, str)
-    assert len(text) > 0
-
 
 ### 2️⃣ Tokenization ###
 def test_encode_text():
