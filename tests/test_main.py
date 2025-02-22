@@ -1,4 +1,3 @@
-from data_loader import load_data
 from tokenizer import encode_text
 from dataset import split_data
 from train import train_model
