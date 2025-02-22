@@ -48,7 +48,7 @@ def train_model_(data: dict) -> str:
     )  # Use the number of classes from the label mapping
     model = SimpleTextClassifier(vocab_size, embed_dim, num_classes)
 
-    # Move model to device (GPU if available)
+    # Move model to device (i don't have a nice gpu but whatevs)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.to(device)
 
@@ -73,7 +73,7 @@ def train_model_(data: dict) -> str:
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
     # Training Loop
-    num_epochs = 10
+    num_epochs = 100
     best_val_loss = float("inf")
 
     for epoch in range(num_epochs):
