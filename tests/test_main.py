@@ -1,12 +1,12 @@
 import pytest
 import torch
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 from data_loader import load_data
 from tokenizer import encode_text
 from dataset import NextTokenDataset, split_data, collate_fn
 from model import SimpleLanguageModel
 from train import train_model
-from transformers import BertTokenizerFast, BertForMaskedLM
+from transformers import BertTokenizerFast
 
 # Load BERT tokenizer (for testing encode_text)
 tokenizer = BertTokenizerFast.from_pretrained("bert-base-uncased")
