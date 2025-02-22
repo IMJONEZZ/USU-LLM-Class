@@ -1,6 +1,5 @@
 import pytest
 import pandas as pd
-import numpy as np
 import torch
 from transformers import BertGenerationConfig
 import sys
