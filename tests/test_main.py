@@ -7,7 +7,11 @@ from train import train_model
 ### Sample Test Data ###
 SAMPLE_TEXT = "Hello world. ZenML is great!"
 SAMPLE_TOKENS = [[101, 7592, 2088, 102], [101, 10924, 2638, 2003, 2307, 102]]
-SAMPLE_SPLIT = {"train": SAMPLE_TOKENS[:1], "val": SAMPLE_TOKENS[:1], "test": SAMPLE_TOKENS[:1]}
+SAMPLE_SPLIT = {
+    "train": SAMPLE_TOKENS[:1],
+    "val": SAMPLE_TOKENS[:1],
+    "test": SAMPLE_TOKENS[:1],
+}
 
 
 ### 1️⃣ Load Data ###
