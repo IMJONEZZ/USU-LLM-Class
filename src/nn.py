@@ -1,5 +1,6 @@
 import torch.nn as nn
 
+
 class SimpleTextClassifier(nn.Module):
     def __init__(self, vocab_size, embed_dim, num_classes):
         super(SimpleTextClassifier, self).__init__()

@@ -42,5 +42,7 @@ def decode_label(label_id, label_to_int):
 
     # Return the corresponding label string
     return int_to_label.get(label_id, "Unknown Label")  # Default if ID is not found
+
+
 evaluate_model_(data, model_path)
 print(f"Predicted Label: {decode_label(predicted_label, label_to_int)}")

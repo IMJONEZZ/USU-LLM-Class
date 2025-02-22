@@ -46,7 +46,9 @@ def predict(model, tokenizer, input_text, device="cpu"):
     model.eval()  # Set to evaluation mode
 
     # Tokenize input
-    tokenized_sequence = tokenizer.encode(input_text)  # Ensure this returns a list of token IDs
+    tokenized_sequence = tokenizer.encode(
+        input_text
+    )  # Ensure this returns a list of token IDs
 
     # Convert to tensor and add batch dimension
     inputs = torch.tensor([tokenized_sequence]).to(device)  # Model expects a tensor
@@ -59,4 +61,3 @@ def predict(model, tokenizer, input_text, device="cpu"):
     predicted_class = torch.argmax(outputs, dim=1).item()
 
     return predicted_class  # Adjust based on your label mapping
-
