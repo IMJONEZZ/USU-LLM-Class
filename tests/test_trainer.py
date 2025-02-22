@@ -2,7 +2,6 @@ import pytest
 from main import get_trainer
 from transformers import TrainingArguments
 from datasets import Dataset, DatasetDict
-import torch
 
 # Fake example data for testing purposes
 fake_train_data = {
