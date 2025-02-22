@@ -5,8 +5,11 @@ from transformers import BertForMaskedLM
 from dataset import NextTokenDataset, collate_fn
 from zenml import step
 
+
 @step
-def train_model(data_splits: dict, batch_size=8, epochs=2, model_name="bert-base-uncased") -> dict:
+def train_model(
+    data_splits: dict, batch_size=8, epochs=2, model_name="bert-base-uncased"
+) -> dict:
     """Trains a BERT-based model for masked language modeling."""
 
     # Detect device (CUDA or CPU)
@@ -17,7 +20,9 @@ def train_model(data_splits: dict, batch_size=8, epochs=2, model_name="bert-base
     model = BertForMaskedLM.from_pretrained(model_name).to(device)
 
     train_dataset = NextTokenDataset(data_splits["train"])
-    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, collate_fn=collate_fn)
+    train_loader = DataLoader(
+        train_dataset, batch_size=batch_size, shuffle=True, collate_fn=collate_fn
+    )
 
     optimizer = AdamW(model.parameters(), lr=5e-5)
 
@@ -35,7 +40,9 @@ def train_model(data_splits: dict, batch_size=8, epochs=2, model_name="bert-base
             # Generate attention_mask where 0 is padding, and 1 is actual data
             attention_mask = (x_batch != 0).long()
 
-            outputs = model(input_ids=x_batch, attention_mask=attention_mask, labels=y_batch)
+            outputs = model(
+                input_ids=x_batch, attention_mask=attention_mask, labels=y_batch
+            )
             loss = outputs.loss
             loss.backward()
             optimizer.step()

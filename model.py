@@ -1,6 +1,7 @@
 import torch
 from torch import nn
 
+
 class SimpleLanguageModel(nn.Module):
     """Minimal language model for next-token prediction."""
 

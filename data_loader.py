@@ -1,6 +1,7 @@
 import json
 from zenml import step
 
+
 @step
 def load_data() -> str:
     """Loads the JSON file and concatenates lines into a single large text."""

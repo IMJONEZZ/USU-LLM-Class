@@ -4,6 +4,7 @@ from torch.nn.utils.rnn import pad_sequence
 from typing import List, Dict
 from zenml import step
 
+
 class NextTokenDataset(Dataset):
     """Dataset for next-token prediction."""
 
@@ -31,17 +32,28 @@ def collate_fn(batch, max_len=50):
 
     if padded_x.shape[1] < max_len:
         pad_amount = max_len - padded_x.shape[1]
-        padded_x = torch.cat([padded_x, torch.zeros((padded_x.shape[0], pad_amount), dtype=torch.long)], dim=1)
+        padded_x = torch.cat(
+            [padded_x, torch.zeros((padded_x.shape[0], pad_amount), dtype=torch.long)],
+            dim=1,
+        )
 
     if padded_y.shape[1] < max_len:
         pad_amount = max_len - padded_y.shape[1]
-        padded_y = torch.cat([padded_y, torch.full((padded_y.shape[0], pad_amount), -100, dtype=torch.long)], dim=1)
+        padded_y = torch.cat(
+            [
+                padded_y,
+                torch.full((padded_y.shape[0], pad_amount), -100, dtype=torch.long),
+            ],
+            dim=1,
+        )
 
     return padded_x, padded_y
 
 
 @step
-def split_data(tokenized_sequences: List[List[int]], train_ratio=0.7, val_ratio=0.15) -> Dict[str, List[List[int]]]:
+def split_data(
+    tokenized_sequences: List[List[int]], train_ratio=0.7, val_ratio=0.15
+) -> Dict[str, List[List[int]]]:
     """Splits data into train, validation, and test sets."""
     total = len(tokenized_sequences)
     train_end = int(total * train_ratio)
