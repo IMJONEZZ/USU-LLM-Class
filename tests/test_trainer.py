@@ -1,7 +1,6 @@
-import os
 import pytest
 from transformers import TrainingArguments, Trainer
-from unsloth import FastLanguageModel, is_bfloat16_supported
+from unsloth import FastLanguageModel
 from datasets import Dataset
 
 # ---------------------------
