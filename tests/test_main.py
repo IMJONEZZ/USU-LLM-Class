@@ -13,7 +13,6 @@ SAMPLE_SPLIT = {
 }
 
 
-
 ### 2️⃣ Tokenization ###
 def test_encode_text():
     result = encode_text(SAMPLE_TEXT)
