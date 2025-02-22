@@ -1,6 +1,7 @@
 import pytest
 import torch
-from unittest.mock import patch
+from unittest.mock import patch, mock_open
+import json
 from data_loader import load_data
 from tokenizer import encode_text
 from dataset import NextTokenDataset, split_data, collate_fn
@@ -23,19 +24,13 @@ TOKENIZED_TEXT = [
 # ------------------ TEST DATA LOADER ------------------
 
 
-@patch("builtins.open", create=True)
-@patch("json.load")
-def test_load_data(mock_json_load, mock_open):
+@patch("builtins.open", new_callable=mock_open, read_data='[{"Line": "Hello world."}, {"Line": "ZenML is great!"}]')
+def test_load_data(mock_file):
     """Test that load_data correctly reads and processes JSON."""
-    mock_json_load.return_value = [
-        {"Line": "Hello world."},
-        {"Line": "ZenML is great!"},
-    ]
-
-    result = load_data()
-    assert result == "Hello world. ZenML is great!", (
-        "load_data() output does not match expected text"
-    )
+    with patch("json.load", return_value=json.loads(mock_file().read())):
+        result = load_data()
+    
+    assert result == "Hello world. ZenML is great!", f"Expected text mismatch: {result}"
 
 
 # ------------------ TEST TOKENIZATION ------------------
