@@ -14,7 +14,6 @@ from zenml.logger import get_logger
 
 logger = get_logger(__name__)
 
-
 class StarWarsDataset(Dataset):
     """Custom dataset for Star Wars dialogue data."""
 
@@ -25,16 +24,35 @@ class StarWarsDataset(Dataset):
         logger.info("Validating sequences...")
         valid_sequences = []
         for tokens in self.texts:
-            if isinstance(tokens, str):
-                try:
-                    tokens = eval(tokens)
-                except (SyntaxError, ValueError):
+            try:
+                # Handle string representation of lists
+                if isinstance(tokens, str):
+                    try:
+                        # Only eval if it looks like a list
+                        if tokens.strip().startswith('[') and tokens.strip().endswith(']'):
+                            tokens = eval(tokens)
+                        else:
+                            continue
+                    except (SyntaxError, ValueError, NameError):
+                        continue
+
+                # Skip None values
+                if tokens is None:
                     continue
 
-            if not isinstance(tokens, (list, np.ndarray)):
-                continue
+                # Verify it's a valid sequence type
+                if not isinstance(tokens, (list, np.ndarray)):
+                    continue
 
-            valid_sequences.append(tokens)
+                # Verify all elements are integers
+                if not all(isinstance(t, (int, np.integer)) for t in tokens):
+                    continue
+
+                valid_sequences.append(tokens)
+
+            except Exception as e:
+                logger.debug(f"Skipping invalid sequence: {str(e)}")
+                continue
 
         self.texts = valid_sequences
         logger.info(f"Found {len(self.texts)} valid sequences")
