@@ -172,3 +172,10 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+
+# My stuff
+star_wars_llama/
+results/
+SW_EpisodeIV_VI.json
+unsloth_compiled_cache/
