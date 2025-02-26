@@ -1,6 +1,5 @@
 import pytest
 from unittest.mock import MagicMock
-from finetuning import train_model
 
 
 def test_train_model():
