@@ -6,6 +6,7 @@ from zenml import step
 model_name = "meta-llama/Llama-3.2-1B"
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 
+
 @step
 def encode_text(text: str) -> List[List[int]]:
     """Tokenizes text into subword tokens using Llama's tokenizer."""

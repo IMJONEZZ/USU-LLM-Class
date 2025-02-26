@@ -5,6 +5,7 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 from dataset import NextTokenDataset, collate_fn
 from zenml import step
 
+
 @step
 def train_model(
     data_splits: dict, batch_size=8, epochs=2, model_name="meta-llama/Llama-3.2-1B"
@@ -33,17 +34,22 @@ def train_model(
 
         for batch in train_loader:
             optimizer.zero_grad()
-            
+
             # Ensure batch is properly unpacked
             if isinstance(batch, dict):
-                x_batch, y_batch = batch["input_ids"].to(device), batch["labels"].to(device)
+                x_batch, y_batch = (
+                    batch["input_ids"].to(device),
+                    batch["labels"].to(device),
+                )
             else:
                 x_batch, y_batch = batch
                 x_batch, y_batch = x_batch.to(device), y_batch.to(device)
-            
+
             # Generate attention_mask where 0 is padding, and 1 is actual data
-            attention_mask = torch.tensor(x_batch != tokenizer.pad_token_id, dtype=torch.long, device=device)
-            
+            attention_mask = torch.tensor(
+                x_batch != tokenizer.pad_token_id, dtype=torch.long, device=device
+            )
+
             outputs = model(
                 input_ids=x_batch, attention_mask=attention_mask, labels=y_batch
             )

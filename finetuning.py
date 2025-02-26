@@ -4,10 +4,16 @@ import torch
 from transformers import LlamaForCausalLM, LlamaTokenizerFast
 
 # Import your existing steps:
-from data_loader import load_data        # your ZenML step that loads data and returns a string
-from tokenizer import encode_text        # your ZenML step that tokenizes the text, returning token IDs
-from dataset import split_data           # your ZenML step that splits token IDs into train/val sets
-from train import train_model            # your ZenML step that trains a Llama model
+from data_loader import (
+    load_data,
+)  # your ZenML step that loads data and returns a string
+from tokenizer import (
+    encode_text,
+)  # your ZenML step that tokenizes the text, returning token IDs
+from dataset import (
+    split_data,
+)  # your ZenML step that splits token IDs into train/val sets
+from train import train_model  # your ZenML step that trains a Llama model
 
 # ----------------------------------------------------------------
 # 1. A list of questions we want to ask after training is done
@@ -25,6 +31,7 @@ QUESTIONS = [
     "What is the riddle of the sphinx, and what are all possible answers satisfying all conditions?",
 ]
 
+
 def main():
     # ----------------------------------------------------------------
     # 2. Run your ZenML steps directly (outside ZenML)
@@ -38,7 +45,9 @@ def main():
     token_ids = encode_text(text=text)  # returns list of lists of token IDs
 
     print("Splitting data into train/val sets...")
-    data_splits = split_data(tokenized_sequences=token_ids)  # returns dict with {train, val}
+    data_splits = split_data(
+        tokenized_sequences=token_ids
+    )  # returns dict with {train, val}
 
     print("Starting model training (fine-tuning)...")
     # train_model should either:
@@ -92,11 +101,13 @@ def main():
 
         # If the model echoes back the question, we can strip that out:
         # (This is optional and depends on how your prompt is set up.)
-        possible_answer = raw_output[len(question) :].strip() if raw_output.startswith(question) else raw_output
-
-        results.append(
-            f"Q: {question}\nA: {possible_answer}\n"
+        possible_answer = (
+            raw_output[len(question) :].strip()
+            if raw_output.startswith(question)
+            else raw_output
         )
+
+        results.append(f"Q: {question}\nA: {possible_answer}\n")
 
     # ----------------------------------------------------------------
     # 4. Write everything to a text file
@@ -108,6 +119,7 @@ def main():
             f.write(line + "\n")
 
     print(f"Done! Check '{output_file}' for the Q&A results.")
+
 
 if __name__ == "__main__":
     main()
