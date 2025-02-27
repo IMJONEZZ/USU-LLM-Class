@@ -65,4 +65,4 @@ To delete the server and start over you can run:
 docker rm zenml
 ```
 
-yeah
+yeahh
