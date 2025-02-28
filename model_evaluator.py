@@ -9,6 +9,7 @@ from zenml.logger import get_logger
 
 logger = get_logger(__name__)
 
+
 def extract_structured_answer(text):
     """Extract reasoning and answer sections from a structured response."""
     # Default values
@@ -33,6 +34,7 @@ def extract_structured_answer(text):
 
     return reasoning, answer
 
+
 # Define reward functions for format compliance
 def strict_format_reward_func(text):
     """Reward function that checks if the text has the expected structure."""
@@ -40,30 +42,32 @@ def strict_format_reward_func(text):
     match = re.match(pattern, text, re.DOTALL)
     return 1.0 if match else 0.0
 
+
 def soft_format_reward_func(text):
     """Reward function with more lenient formatting requirements."""
     pattern = r"<reasoning>.*?</reasoning>\s*<answer>.*?</answer>"
     match = re.search(pattern, text, re.DOTALL)
     return 1.0 if match else 0.0
 
+
 @step
 def test_model(
     model_info: Dict[str, Any],
     test_questions: List[str],
     hf_token: str = None,
-    max_new_tokens: int = 256
+    max_new_tokens: int = 256,
 ) -> Annotated[Dict[str, Any], "evaluation_results"]:
     """Test the fine-tuned model on the assignment questions.
-    
+
     This step evaluates the fine-tuned LLaMA model on a set of test questions
     and generates answers in the structured format.
-    
+
     Args:
         model_info: Dictionary with model information
         test_questions: List of test questions to evaluate
         hf_token: HuggingFace API token
         max_new_tokens: Maximum number of tokens to generate
-        
+
     Returns:
         Dict with evaluation results and model answers
     """
@@ -75,7 +79,7 @@ def test_model(
                 "HuggingFace token is required. Please provide it via the 'hf_token' argument "
                 "or set the 'HF_TOKEN' environment variable."
             )
-            
+
     try:
         from unsloth import FastLanguageModel
     except ImportError:
@@ -116,11 +120,7 @@ def test_model(
     }
 
     # Prepare results storage
-    results = {
-        "questions": test_questions,
-        "answers": [],
-        "formatted_qa_pairs": []
-    }
+    results = {"questions": test_questions, "answers": [], "formatted_qa_pairs": []}
 
     # Test metrics
     format_compliance = []
@@ -132,7 +132,7 @@ def test_model(
         # Format as chat
         messages = [
             {"role": "system", "content": SYSTEM_PROMPT},
-            {"role": "user", "content": question}
+            {"role": "user", "content": question},
         ]
 
         # Format prompt
@@ -145,13 +145,12 @@ def test_model(
 
         # Generate answer
         with torch.no_grad():
-            outputs = model.generate(
-                inputs.input_ids,
-                **generation_params
-            )
+            outputs = model.generate(inputs.input_ids, **generation_params)
 
         # Decode the generated output
-        generated_text = tokenizer.decode(outputs[0][len(inputs.input_ids[0]):], skip_special_tokens=True)
+        generated_text = tokenizer.decode(
+            outputs[0][len(inputs.input_ids[0]) :], skip_special_tokens=True
+        )
 
         # Extract reasoning and answer
         reasoning, answer = extract_structured_answer(generated_text)
@@ -166,21 +165,27 @@ def test_model(
             answer = generated_text
 
         # Add to results
-        results["answers"].append({
-            "question": question,
-            "full_response": generated_text,
-            "reasoning": reasoning,
-            "final_answer": answer,
-            "format_compliance_strict": strict_format,
-            "format_compliance_soft": soft_format,
-        })
+        results["answers"].append(
+            {
+                "question": question,
+                "full_response": generated_text,
+                "reasoning": reasoning,
+                "final_answer": answer,
+                "format_compliance_strict": strict_format,
+                "format_compliance_soft": soft_format,
+            }
+        )
 
         # Add to formatted Q&A pairs
         results["formatted_qa_pairs"].append(f"Q: {question}\nA: {answer}")
 
     # Calculate format compliance metrics
-    strict_compliance_rate = sum(item["strict"] for item in format_compliance) / len(format_compliance)
-    soft_compliance_rate = sum(item["soft"] for item in format_compliance) / len(format_compliance)
+    strict_compliance_rate = sum(item["strict"] for item in format_compliance) / len(
+        format_compliance
+    )
+    soft_compliance_rate = sum(item["soft"] for item in format_compliance) / len(
+        format_compliance
+    )
 
     # Log metrics to ZenML
     evaluation_metrics = {
@@ -196,6 +201,8 @@ def test_model(
             f.write(f"{qa}\n\n")
 
     logger.info(f"Answers saved to answers.txt")
-    logger.info(f"Format compliance: Strict={strict_compliance_rate:.2f}, Soft={soft_compliance_rate:.2f}")
+    logger.info(
+        f"Format compliance: Strict={strict_compliance_rate:.2f}, Soft={soft_compliance_rate:.2f}"
+    )
 
     return results
