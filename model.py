@@ -1,4 +1,8 @@
-from unsloth import FastLanguageModel
+import torch
+if not torch.cuda.is_available():
+    from unsloth import FastLanguageModel
+else:
+    from transformers import AutoModel as FastLanguageModel
 import huggingface_hub
 from config import MODEL_NAME, quant_config, lora_config
 
