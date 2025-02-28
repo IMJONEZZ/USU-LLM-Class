@@ -6,7 +6,7 @@ from unsloth import is_bfloat16_supported
 from trl import GRPOConfig, GRPOTrainer
 from datasets import load_dataset
 from datasets import concatenate_datasets
-from vllm import SamplingParams
+
 
 
 # -*- coding: utf-8 -*-
