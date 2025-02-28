@@ -64,3 +64,5 @@ To delete the server and start over you can run:
 ```bash
 docker rm zenml
 ```
+
+homework assignment6
