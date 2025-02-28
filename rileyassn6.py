@@ -1,3 +1,14 @@
+from unsloth import FastLanguageModel, PatchFastRL
+from vllm import SamplingParams
+
+# import unsloth
+from unsloth import is_bfloat16_supported
+from trl import GRPOConfig, GRPOTrainer
+from datasets import load_dataset
+from datasets import concatenate_datasets
+from vllm import SamplingParams
+
+
 # -*- coding: utf-8 -*-
 """RileyAssn6.ipynb
 
@@ -26,14 +37,6 @@ Original file is located at
 
 Use `PatchFastRL` before all functions to patch GRPO and other RL algorithms!
 """
-
-from unsloth import FastLanguageModel, PatchFastRL
-from vllm import SamplingParams
-
-# import unsloth
-from unsloth import is_bfloat16_supported
-from trl import GRPOConfig, GRPOTrainer
-from datasets import load_dataset
 
 
 # import torch
@@ -228,7 +231,6 @@ riddle_processed = riddle_processed.select_columns(
     ["prompt", "answer", "input_ids", "attention_mask"]
 )
 
-from datasets import concatenate_datasets
 
 final_dataset = concatenate_datasets(
     [
@@ -471,7 +473,6 @@ text = tokenizer.apply_chat_template(
     add_generation_prompt=True,
 )
 
-from vllm import SamplingParams
 
 sampling_params = SamplingParams(
     temperature=0.8,
