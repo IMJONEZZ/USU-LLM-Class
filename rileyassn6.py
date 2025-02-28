@@ -28,14 +28,19 @@ Use `PatchFastRL` before all functions to patch GRPO and other RL algorithms!
 """
 
 from unsloth import FastLanguageModel, PatchFastRL
+from vllm import SamplingParams
 
+# import unsloth
+from unsloth import is_bfloat16_supported
+from trl import GRPOConfig, GRPOTrainer
+from datasets import load_dataset
+
+
+# import torch
 PatchFastRL("GRPO", FastLanguageModel)
-import unsloth
 
 """Load up `Llama 3.1 8B Instruct`, and set parameters"""
 
-from unsloth import is_bfloat16_supported
-import torch
 
 # print(torch.__version__,unsloth.__version__)
 max_seq_length = 512  # Can increase for longer reasoning traces
@@ -78,8 +83,6 @@ Using the wikipedia dataset
 # import re
 # from datasets import load_dataset, Dataset
 
-
-from datasets import load_dataset
 
 # Load Wikipedia English dataset
 wikipedia_dataset = load_dataset("wikipedia", "20220301.simple")
@@ -238,7 +241,6 @@ final_dataset = concatenate_datasets(
 
 """Reward functions"""
 
-import torch
 
 # def perplexity_reward_func(prompts, completions, **kwargs):
 #     """
@@ -328,7 +330,6 @@ def length_reward(prompts, completions, **kwargs):
 Now set up GRPO Trainer and all configurations!
 """
 
-from trl import GRPOConfig, GRPOTrainer
 
 training_args = GRPOConfig(
     use_vllm=True,  # use vLLM for fast inference!
@@ -404,7 +405,6 @@ text = tokenizer.apply_chat_template(
     add_generation_prompt=True,
 )
 
-from vllm import SamplingParams
 
 sampling_params = SamplingParams(
     temperature=0.8,
@@ -465,7 +465,6 @@ text = tokenizer.apply_chat_template(
     add_generation_prompt=True,
 )
 
-from vllm import SamplingParams
 
 sampling_params = SamplingParams(
     temperature=0.8,
@@ -561,3 +560,5 @@ Our reasoning model is much better - it's not always correct, since we only trai
 
 We also support saving to `float16` directly. Select `merged_16bit` for float16 or `merged_4bit` for int4. We also allow `lora` adapters as a fallback. Use `push_to_hub_merged` to upload to your Hugging Face account! You can go to https://huggingface.co/settings/tokens for your personal tokens.
 """
+
+# %%
