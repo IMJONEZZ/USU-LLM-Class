@@ -2,7 +2,7 @@ from typing import Optional, Tuple
 from zenml import pipeline
 from zenml.logger import get_logger
 from data_loader import star_wars_data_loader
-from preprocessor import star_wars_preprocessor
+from data_preprocessor import star_wars_preprocessor
 from model_trainer import bert_trainer
 from model_evaluator import bert_evaluator
 
