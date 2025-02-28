@@ -200,7 +200,7 @@ def test_model(
         for qa in results["formatted_qa_pairs"]:
             f.write(f"{qa}\n\n")
 
-    logger.info(f"Answers saved to answers.txt")
+    logger.info("Answers saved to answers.txt")
     logger.info(
         f"Format compliance: Strict={strict_compliance_rate:.2f}, Soft={soft_compliance_rate:.2f}"
     )
