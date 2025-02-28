@@ -268,36 +268,6 @@ final_dataset = concatenate_datasets(
 
 #     return rewards
 
-# def length_reward_func(prompts, completions, **kwargs):
-#     """
-#     Reward function that encourages outputs to be within a percentage of the original prompt length.
-#     """
-#     rewards = []
-#     for prompt, completion in zip(prompts, completions):
-#         # Ensure completion is a string
-#         if not completion:
-#             rewards.append(0.0)
-#             continue
-#         if isinstance(completion, list):
-#             completion = completion[0] if len(completion) > 0 else ""
-#         elif not isinstance(completion, str):
-#             completion = str(completion)
-
-#         # Get word count
-#         completion_length = len(completion.split())
-#         prompt_length = len(prompt.split())
-
-#         # Set length range as a % of prompt length
-#         min_length = int(0.5 * prompt_length)  # At least 50% of prompt
-#         max_length = int(1.5 * prompt_length)  # No more than 150% of prompt
-
-#         if min_length <= completion_length <= max_length:
-#             rewards.append(1.0)  # Full reward for acceptable length
-#         else:
-#             rewards.append(0.0)  # No reward if too short/long
-
-#     return rewards
-
 
 def diversity_reward(prompts, completions, **kwargs):
     rewards = []
@@ -519,46 +489,3 @@ output = (
 )
 
 output
-
-from google.colab import drive
-
-drive.mount("/content/drive")
-
-# save_path =  "/content/drive/MyDrive/Misc College/LLMs/assn6data"
-
-# trainer.save_model(save_path)
-# tokenizer.save_pretrained(save_path)
-
-
-save_path2 = "/content/drive/MyDrive/Misc College/LLMs/assn6data_lora"
-
-model.save_lora(save_path2)  # Saves only LoRA adapters
-tokenizer.save_pretrained(save_path2)  # Save tokenizer too
-
-"""How to use the lora data
-
-```
-from unsloth import FastLanguageModel
-
-# Load base model again
-model, tokenizer = FastLanguageModel.from_pretrained(
-    model_name="meta-llama/Llama-3.2-1B-Instruct",
-    max_seq_length=512,
-    load_in_4bit=True,
-)
-
-# Load LoRA weights back into the base model
-model.load_lora("/content/drive/MyDrive/Misc College/LLMs/assn6data_lora")
-
-
-```
-
-Our reasoning model is much better - it's not always correct, since we only trained it for an hour or so - it'll be better if we extend the sequence length and train for longer!
-
-<a name="Save"></a>
-### Saving to float16 for VLLM
-
-We also support saving to `float16` directly. Select `merged_16bit` for float16 or `merged_4bit` for int4. We also allow `lora` adapters as a fallback. Use `push_to_hub_merged` to upload to your Hugging Face account! You can go to https://huggingface.co/settings/tokens for your personal tokens.
-"""
-
-# %%
