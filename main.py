@@ -2,12 +2,12 @@ from zenml import pipeline, step
 import json
 from tokenizer import tokenize_text
 from dataloader import create_dataloader
-from trainer import SFT_train
-from evaluator import evaluator
+# from trainer import SFT_train
+# from evaluator import evaluator
 
 
 @step
-def load_data(file_path: str) -> list:
+def load_data(file_path: str):
     """Loads JSON data from a file."""
     with open(file_path, "r") as file:
         data = json.load(file)
@@ -15,8 +15,7 @@ def load_data(file_path: str) -> list:
 
 
 @pipeline
-def assignment_5_pipeline(file_path: str):
-    """ZenML pipeline for text processing using BERT."""
+def assignment_6_pipeline(file_path: str):
     data = load_data(file_path)
     encoding = tokenize_text(data)
     dataloader = create_dataloader(encoding)
@@ -26,4 +25,4 @@ def assignment_5_pipeline(file_path: str):
 
 
 if __name__ == "__main__":
-    assignment_5_pipeline(file_path="SW_EpisodeIV_VI.json")
+    assignment_6_pipeline(file_path="SW_EpisodeIV_VI.json")

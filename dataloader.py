@@ -19,7 +19,7 @@ class TextDataset(Dataset):
 
 @step
 def create_dataloader(encoding: dict, batch_size: int = 4) -> DataLoader:
-    """Creates a DataLoader from BERT-tokenized text."""
+    """Creates a DataLoader from Llama-tokenized text."""
     dataset = TextDataset(encoding)
     dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
     return dataloader
