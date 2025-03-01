@@ -98,7 +98,6 @@ def test_trainer_finetuning(
 
     from model import initialize_model_and_tokenizer
     from train import initialize_trainer
-    import torch
 
     model, tokenizer = initialize_model_and_tokenizer()
     train_dataset = processed_small_dataset["train"]
