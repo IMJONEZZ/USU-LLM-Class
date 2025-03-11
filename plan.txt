@@ -1,0 +1,11 @@
+My plan for this commit.
+
+For creating a vector database, I have  a number of thoughts. 
+
+The big goal of this assignment is to create vector embeddings. The exampe code provided works on the wikipedia dataset, and that might be rather large for the context of this assignment. I think I will work with something. I am going to mess with one of my final project ideas of using all of yoda's speech from all 6 star wars movies.  That should be a nice small.
+
+No, I have to choose something way to vectorize things. I could use the example in listing 6.7 of a pinecone database, but that I don't want to deal with the API, and it seems excessive for my needs. I am instead going to look at the Chroma example given in the assignment description. If that doesn't wowork, I might go try something like FAISS from facebook. We have been using a lot of meta stuff with llama, so that could be good. 
+
+When I get to querrying, I hope to use cosine similarity. This feels intuitive for a vectorizer. Alternatively, I could use a nearest neighbor approach. 
+
+Hopefully, this should be fairly simple. 
