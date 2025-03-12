@@ -5,6 +5,8 @@ description = "Repository for USU LLM Class DSAI-5810/6810"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "langchain>=0.3.20",
+    "langchain-community>=0.3.19",
     "zenml[server]>=0.73.0",
 ]
 
