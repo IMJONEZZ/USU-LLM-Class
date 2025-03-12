@@ -7,6 +7,7 @@ requires-python = ">=3.12"
 dependencies = [
     "langchain>=0.3.20",
     "langchain-community>=0.3.19",
+    "pandas>=2.2.3",
     "zenml[server]>=0.73.0",
 ]
 
