@@ -60,6 +60,9 @@ def test_model(
             token=hf_token,
             device_map="auto",  # Works for both CPU and GPU
             torch_dtype=torch.float32 if not torch.cuda.is_available() else torch.float16,
+            # Skip quantization when on CPU to avoid bitsandbytes issues
+            load_in_8bit=False,
+            quantization_config=None
         )
         
         # Set padding token if needed
