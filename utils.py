@@ -9,7 +9,7 @@ from zenml.client import Client
 from huggingface_hub import login
 
 # Global flag to force CPU mode - set by run.py when --force-cpu is passed
-FORCE_CPU_MODE = True
+FORCE_CPU_MODE = False
 
 def setup_environment(zenml_server_url=None, hf_token=None):
     """
