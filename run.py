@@ -1,19 +1,19 @@
 """
-Main script to run the Llama 3.2 fine-tuning pipeline
+Script to run the Llama 3.2 fine-tuning pipeline with RAG support
 """
 
 import os
 import argparse
 from zenml.logger import get_logger
 from utils import setup_environment, check_gpu
-from pipeline import llama_finetuning_pipeline
-from evaluation import show_model_answers
+from pipeline import llama_rag_pipeline
+from evaluation import show_model_answers_with_rag
 
 logger = get_logger(__name__)
 
 def parse_args():
     """Parse command line arguments."""
-    parser = argparse.ArgumentParser(description="Run Llama 3.2 fine-tuning pipeline")
+    parser = argparse.ArgumentParser(description="Run Llama 3.2 fine-tuning pipeline with RAG support")
     
     # Required credentials
     parser.add_argument("--zenml-url", type=str, help="ZenML server URL")
@@ -40,6 +40,24 @@ def parse_args():
     # Output
     parser.add_argument("--output-dir", type=str, default="llama_finetuned", 
                         help="Output directory for model")
+    
+    # Vector database configuration
+    parser.add_argument("--vectordb-collection", type=str, default="llama_knowledge", 
+                        help="Vector database collection name")
+    parser.add_argument("--vectordb-dir", type=str, default="./chroma_data", 
+                        help="Vector database persistence directory")
+    
+    # RAG configuration
+    parser.add_argument("--use-rag", action="store_true", default=True,
+                        help="Use RAG during evaluation")
+    parser.add_argument("--no-rag", action="store_false", dest="use_rag",
+                        help="Don't use RAG during evaluation")
+    parser.add_argument("--rag-results", type=int, default=3,
+                        help="Number of results to retrieve for RAG")
+    parser.add_argument("--compare", action="store_true", default=True,
+                        help="Compare results with and without RAG")
+    parser.add_argument("--no-compare", action="store_false", dest="compare",
+                        help="Don't compare results with and without RAG")
     
     # Backend selection (force CPU if needed)
     parser.add_argument("--force-cpu", action="store_true", 
@@ -76,8 +94,8 @@ def main():
     device = check_gpu()
     
     # Run the pipeline
-    logger.info("Starting Llama 3.2 fine-tuning pipeline")
-    model_info, results = llama_finetuning_pipeline(
+    logger.info("Starting Llama 3.2 fine-tuning pipeline with RAG support")
+    model_info, vectordb_info, results = llama_rag_pipeline(
         huggingface_model_name=args.model,
         max_length=args.seq_length,
         lora_rank=args.lora_rank,
@@ -85,14 +103,20 @@ def main():
         num_train_epochs=args.epochs,
         per_device_train_batch_size=args.batch_size,
         gradient_accumulation_steps=args.grad_accum,
-        output_dir=args.output_dir
+        output_dir=args.output_dir,
+        vectordb_collection=args.vectordb_collection,
+        vectordb_persist_dir=args.vectordb_dir,
+        use_rag=args.use_rag,
+        rag_results=args.rag_results,
+        compare_with_without_rag=args.compare
     )
     
     # Show results
     logger.info(f"Model saved to {model_info['model_path']}")
-    show_model_answers(results)
+    logger.info(f"Vector database created: {vectordb_info['collection_name']} with {vectordb_info['doc_count']} documents")
+    show_model_answers_with_rag(results)
     
-    return model_info, results
+    return model_info, vectordb_info, results
 
 if __name__ == "__main__":
     main()
