@@ -13,7 +13,7 @@ ZENML_SERVER_URL = os.environ.get("ZENML_SERVER_URL", "")  # Set your ZenML serv
 
 # Model training parameters
 MAX_SEQ_LENGTH = 512
-LORA_RANK = 16
+LORA_RANK = 8
 NUM_TRAIN_EPOCHS = 3
 LEARNING_RATE = 2e-5
 PER_DEVICE_TRAIN_BATCH_SIZE = 1
