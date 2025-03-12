@@ -1,20 +1,19 @@
 import sys
 import os
-
-# Get the root directory (one level up from "tests")
-root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-
-# Add root directory to sys.path
-sys.path.insert(0, root_dir)
-
 import pytest
 from langchain_community.vectorstores import Chroma
 
+# Get the root directory (one level up from "tests")
+root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+# Add root directory to sys.path
+sys.path.insert(0, root_dir)
+from rileyassn7 import embed_model, query_vector_db
+
+
 # from langchain_community.embeddings import HuggingFaceEmbeddings
-import pandas as pd
+# import pandas as pd
 
 # Import functions from your script
-from rileyassn7 import embed_model, query_vector_db
 
 
 @pytest.fixture(scope="module")
