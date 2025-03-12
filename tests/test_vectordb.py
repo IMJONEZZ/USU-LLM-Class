@@ -2,12 +2,8 @@ import sys
 import os
 import pytest
 from langchain_community.vectorstores import Chroma
-
-# Get the root directory (one level up from "tests")
-root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-# Add root directory to sys.path
-sys.path.insert(0, root_dir)
 from rileyassn7 import embed_model, query_vector_db
+
 
 
 # from langchain_community.embeddings import HuggingFaceEmbeddings
