@@ -1,9 +1,8 @@
-import sys
-import os
+# import sys
+# import os
 import pytest
 from langchain_community.vectorstores import Chroma
 from rileyassn7 import embed_model, query_vector_db
-
 
 
 # from langchain_community.embeddings import HuggingFaceEmbeddings
