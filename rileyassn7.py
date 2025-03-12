@@ -7,28 +7,13 @@ Original file is located at
     https://colab.research.google.com/drive/1-ZNGIKF1fu2VJveRgBuwYoO_WQZm22ED
 
 ### Installation
-"""
+"""  # from langchain.llms import LlamaCpp
 
-from google.colab import drive
-
-drive.mount("/content/drive")
-
-# Commented out IPython magic to ensure Python compatibility.
-# %%capture
-# # Skip restarting message in Colab
-# import sys; modules = list(sys.modules.keys())
-# for x in modules: sys.modules.pop(x) if "PIL" in x or "google" in x else None
-#
-# !pip uninstall -y chromadb langchain langchain-community opentelemetry-sdk
-# !pip install --no-cache-dir chromadb==0.4.24 langchain-community langchain
-# !pip install --no-cache-dir llama-cpp-python
-#
-#
-
-from langchain.llms import LlamaCpp
 from langchain_community.embeddings import HuggingFaceEmbeddings
-import torch
+
+# import torch
 from langchain_community.vectorstores import Chroma
+import pandas as pd
 
 # Load Embedding Model
 embed_model = HuggingFaceEmbeddings(model_name="Snowflake/snowflake-arctic-embed-l")
@@ -43,7 +28,6 @@ Use `PatchFastRL` before all functions to patch GRPO and other RL algorithms!
 Using the yoda stuff
 """
 
-import pandas as pd
 
 path = "/content/drive/MyDrive/Misc College/LLMs/data/yoda-corpus.csv"
 
