@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-LLaMA 3.2 1B Finetuning Pipeline for Assignment 6
+LLaMA 3.2 1B Finetuning Pipeline for Assignment 7
 
 This script runs the complete pipeline for finetuning the LLaMA 3.2 1B model,
 from dataset preparation to model evaluation on test questions.
