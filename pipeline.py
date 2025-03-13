@@ -88,7 +88,7 @@ def llama_rag_pipeline(
         include_sample_data=True,
         include_test_questions=True,
     )
-    
+
     vectordb_info = add_test_answers_to_vectordb(vectordb_info)
 
     # Test on assignment questions with RAG
