@@ -6,7 +6,7 @@ from zenml import pipeline
 from zenml.logger import get_logger
 
 # Import steps from our modules
-from dataset import create_dataset, create_enhanced_dataset, add_test_answers_to_vectordb
+from dataset import create_enhanced_dataset, add_test_answers_to_vectordb
 from model import train_llama_model
 from evaluation import test_model_with_rag
 from vectordb_step import create_vector_database
