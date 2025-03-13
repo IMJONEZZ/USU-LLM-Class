@@ -41,7 +41,6 @@ def llama_rag_pipeline(
     use_rag: bool = True,
     rag_results: int = 3,
     compare_with_without_rag: bool = True,
-    
     # Dataset parameters
     use_sample_data: bool = True,
     include_gsm8k: bool = True,
@@ -82,7 +81,7 @@ def llama_rag_pipeline(
         gsm8k_examples=gsm8k_examples,
         include_mmlu=include_mmlu,
         mmlu_examples_per_subject=mmlu_examples_per_subject,
-        include_test_answers=True
+        include_test_answers=True,
     )
 
     # Train the model

@@ -4,7 +4,7 @@ Dataset creation for Llama 3.2 fine-tuning with real datasets
 
 import re
 from typing_extensions import Annotated
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any
 from datasets import Dataset, load_dataset, concatenate_datasets
 from zenml import step
 from zenml.logger import get_logger
@@ -92,41 +92,45 @@ def _load_gsm8k_subset(max_examples=50) -> Dataset:
         Dataset with formatted GSM8K examples
     """
     logger.info(f"Loading GSM8K dataset (maximum {max_examples} examples)...")
-    
+
     try:
         # Load the GSM8K dataset
         gsm8k = load_dataset("gsm8k", "main", split="train")
-        
+
         # Shuffle and select a subset to ensure variety
         gsm8k = gsm8k.shuffle(seed=42).select(range(min(max_examples, len(gsm8k))))
-        
+
         formatted_data = []
-        
+
         for example in gsm8k:
             question = example["question"]
             answer_with_solution = example["answer"]
-            
+
             # GSM8K answers typically have a step-by-step solution followed by the final answer
             # The final answer is preceded by "####"
             parts = answer_with_solution.split("####")
             solution = parts[0].strip()
-            final_answer = parts[1].strip() if len(parts) > 1 else answer_with_solution.strip()
-            
+            final_answer = (
+                parts[1].strip() if len(parts) > 1 else answer_with_solution.strip()
+            )
+
             # Format in our required structure
             formatted_response = f"<reasoning>\n{solution}\n</reasoning>\n<answer>\n{final_answer}\n</answer>"
-            
-            formatted_data.append({
-                "messages": [
-                    {"role": "system", "content": SYSTEM_PROMPT},
-                    {"role": "user", "content": question},
-                ],
-                "target": formatted_response,
-            })
-        
+
+            formatted_data.append(
+                {
+                    "messages": [
+                        {"role": "system", "content": SYSTEM_PROMPT},
+                        {"role": "user", "content": question},
+                    ],
+                    "target": formatted_response,
+                }
+            )
+
         dataset = Dataset.from_list(formatted_data)
         logger.info(f"Loaded {len(dataset)} examples from GSM8K")
         return dataset
-    
+
     except Exception as e:
         logger.warning(f"Error loading GSM8K dataset: {e}")
         # Return empty dataset if there was an error
@@ -146,65 +150,67 @@ def _load_mmlu_subset(subjects=None, max_per_subject=15) -> Dataset:
     # Use correct subject names from the MMLU dataset
     if subjects is None:
         subjects = [
-            'high_school_mathematics', 
-            'elementary_mathematics', 
-            'high_school_physics',
-            'high_school_chemistry'
+            "high_school_mathematics",
+            "elementary_mathematics",
+            "high_school_physics",
+            "high_school_chemistry",
         ]
-    
+
     logger.info(f"Loading MMLU dataset for subjects: {subjects}")
-    
+
     formatted_examples = []
-    
+
     # Process each requested subject
     for subject in subjects:
         try:
             # Load the subject dataset
-            dataset = load_dataset('cais/mmlu', subject, split='test')
-            
+            dataset = load_dataset("cais/mmlu", subject, split="test")
+
             # Take only a subset
             if len(dataset) > max_per_subject:
                 dataset = dataset.shuffle(seed=42).select(range(max_per_subject))
-            
+
             # Format the examples
             for example in dataset:
-                question = example['question']
-                
+                question = example["question"]
+
                 # MMLU questions have choices A, B, C, D
-                choices = "\nA. " + example['choices'][0]
-                choices += "\nB. " + example['choices'][1]  
-                choices += "\nC. " + example['choices'][2]
-                choices += "\nD. " + example['choices'][3]
-                
+                choices = "\nA. " + example["choices"][0]
+                choices += "\nB. " + example["choices"][1]
+                choices += "\nC. " + example["choices"][2]
+                choices += "\nD. " + example["choices"][3]
+
                 full_question = question + choices
-                correct_answer_idx = example['answer']
+                correct_answer_idx = example["answer"]
                 correct_letter = "ABCD"[correct_answer_idx]
-                correct_answer_text = example['choices'][correct_answer_idx]
-                
+                correct_answer_text = example["choices"][correct_answer_idx]
+
                 # Create a reasoning and answer in the required format
-                reasoning = f"Let's analyze this multiple-choice question carefully.\n\n"
+                reasoning = "Let's analyze this multiple-choice question carefully.\n\n"
                 reasoning += f"The question asks: {question}\n\n"
                 reasoning += f"The options are:\nA. {example['choices'][0]}\n"
                 reasoning += f"B. {example['choices'][1]}\nC. {example['choices'][2]}\nD. {example['choices'][3]}\n\n"
                 reasoning += f"The correct answer is option {correct_letter}: {correct_answer_text}."
-                
+
                 answer = f"The answer is {correct_letter}: {correct_answer_text}"
-                
+
                 formatted_response = f"<reasoning>\n{reasoning}\n</reasoning>\n<answer>\n{answer}\n</answer>"
-                
-                formatted_examples.append({
-                    "messages": [
-                        {"role": "system", "content": SYSTEM_PROMPT},
-                        {"role": "user", "content": full_question},
-                    ],
-                    "target": formatted_response,
-                })
-            
+
+                formatted_examples.append(
+                    {
+                        "messages": [
+                            {"role": "system", "content": SYSTEM_PROMPT},
+                            {"role": "user", "content": full_question},
+                        ],
+                        "target": formatted_response,
+                    }
+                )
+
             logger.info(f"Added {len(dataset)} examples from {subject}")
-            
+
         except Exception as e:
             logger.warning(f"Error loading {subject}: {e}")
-    
+
     if formatted_examples:
         dataset = Dataset.from_list(formatted_examples)
         logger.info(f"Loaded total of {len(dataset)} examples from MMLU")
@@ -217,11 +223,11 @@ def _load_mmlu_subset(subjects=None, max_per_subject=15) -> Dataset:
 @step
 def create_dataset(
     use_sample_data: bool = True,
-    include_gsm8k: bool = True, 
+    include_gsm8k: bool = True,
     gsm8k_examples: int = 40,
     include_mmlu: bool = True,
     mmlu_examples_per_subject: int = 10,
-    include_test_answers: bool = True
+    include_test_answers: bool = True,
 ) -> Annotated[Dataset, "training_dataset"]:
     """Create a training dataset with configurable data sources.
 
@@ -237,19 +243,21 @@ def create_dataset(
         Dataset for training
     """
     datasets = []
-    
+
     # Start with the original sample data if requested
     if use_sample_data:
-        sample_dataset = Dataset.from_list([
-            {
-                "messages": [
-                    {"role": "system", "content": SYSTEM_PROMPT},
-                    {"role": "user", "content": item["instruction"]},
-                ],
-                "target": item["response"],
-            }
-            for item in SAMPLE_DATA
-        ])
+        sample_dataset = Dataset.from_list(
+            [
+                {
+                    "messages": [
+                        {"role": "system", "content": SYSTEM_PROMPT},
+                        {"role": "user", "content": item["instruction"]},
+                    ],
+                    "target": item["response"],
+                }
+                for item in SAMPLE_DATA
+            ]
+        )
         datasets.append(sample_dataset)
         logger.info(f"Added original SAMPLE_DATA with {len(sample_dataset)} examples")
 
@@ -264,14 +272,13 @@ def create_dataset(
     if include_mmlu:
         # Use correct subject names from the MMLU dataset
         mmlu_subjects = [
-            'high_school_mathematics', 
-            'elementary_mathematics', 
-            'high_school_physics',
-            'high_school_chemistry'
+            "high_school_mathematics",
+            "elementary_mathematics",
+            "high_school_physics",
+            "high_school_chemistry",
         ]
         mmlu_dataset = _load_mmlu_subset(
-            subjects=mmlu_subjects,
-            max_per_subject=mmlu_examples_per_subject
+            subjects=mmlu_subjects, max_per_subject=mmlu_examples_per_subject
         )
         if len(mmlu_dataset) > 0:
             datasets.append(mmlu_dataset)
@@ -281,17 +288,19 @@ def create_dataset(
     if include_test_answers:
         logger.info("Adding test questions with ground truth answers...")
 
-        test_dataset = Dataset.from_list([
-            {
-                "messages": [
-                    {"role": "system", "content": SYSTEM_PROMPT},
-                    {"role": "user", "content": question},
-                ],
-                "target": answer,
-            }
-            for question, answer in zip(TEST_QUESTIONS, TEST_ANSWERS)
-        ])
-        
+        test_dataset = Dataset.from_list(
+            [
+                {
+                    "messages": [
+                        {"role": "system", "content": SYSTEM_PROMPT},
+                        {"role": "user", "content": question},
+                    ],
+                    "target": answer,
+                }
+                for question, answer in zip(TEST_QUESTIONS, TEST_ANSWERS)
+            ]
+        )
+
         datasets.append(test_dataset)
         logger.info(f"Added test answers with {len(test_dataset)} examples")
 
@@ -299,18 +308,18 @@ def create_dataset(
     if not datasets:
         logger.warning("No datasets were selected! Creating an empty dataset.")
         return Dataset.from_list([])
-    
+
     # Combine all datasets if there's more than one
     if len(datasets) > 1:
         combined_dataset = concatenate_datasets(datasets)
     else:
         combined_dataset = datasets[0]
-    
+
     # Shuffle the dataset
     combined_dataset = combined_dataset.shuffle(seed=42)
-    
+
     logger.info(f"Created combined dataset with {len(combined_dataset)} examples")
-    
+
     return combined_dataset
 
 
