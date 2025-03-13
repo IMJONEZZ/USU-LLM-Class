@@ -1,5 +1,5 @@
 """
-Enhanced pipeline definition with RAG support for Llama 3.2 fine-tuning
+Enhanced pipeline definition with RAG support for Llama 3.2 fine-tuning and ZenML integration
 """
 
 from zenml import pipeline
@@ -47,6 +47,9 @@ def llama_rag_pipeline(
     gsm8k_examples: int = 300,
     include_mmlu: bool = True,
     mmlu_examples_per_subject: int = 75,
+    include_test_answers: bool = True,
+    # ZenML parameters
+    use_zenml_model: bool = True,
 ):
     """Pipeline for finetuning Llama 3.2:1B on instruction data with RAG support.
 
@@ -70,6 +73,8 @@ def llama_rag_pipeline(
         gsm8k_examples: Number of GSM8K examples to include
         include_mmlu: Whether to include MMLU examples
         mmlu_examples_per_subject: Number of examples per MMLU subject
+        include_test_answers: Whether to include test answers in training
+        use_zenml_model: Whether to load the model from ZenML registry for evaluation
 
     Returns:
         Tuple of model_info, vectordb_info, and results
@@ -81,7 +86,7 @@ def llama_rag_pipeline(
         gsm8k_examples=gsm8k_examples,
         include_mmlu=include_mmlu,
         mmlu_examples_per_subject=mmlu_examples_per_subject,
-        include_test_answers=True,
+        include_test_answers=include_test_answers,
     )
 
     # Train the model
@@ -117,6 +122,7 @@ def llama_rag_pipeline(
         use_rag=use_rag,
         n_results=rag_results,
         compare_with_without_rag=compare_with_without_rag,
+        use_zenml_model=use_zenml_model,
     )
 
     return model_info, vectordb_info, results

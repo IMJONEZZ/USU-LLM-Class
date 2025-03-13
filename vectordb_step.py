@@ -7,7 +7,7 @@ from typing_extensions import Annotated
 from datasets import Dataset
 from zenml import step
 from zenml.logger import get_logger
-from zenml import log_artifact_metadata
+from zenml import log_metadata
 
 from config import TEST_QUESTIONS
 from vectordb import ChromaVectorDB
@@ -101,7 +101,7 @@ def create_vector_database(
     logger.info(f"Vector database stats: {stats}")
 
     # Log metrics
-    log_artifact_metadata(
+    log_metadata(
         {
             "vectordb_collection": collection_name,
             "vectordb_doc_count": doc_count,
@@ -143,21 +143,46 @@ def retrieve_similar_context(
     # Retrieve similar documents
     results = db.search(question, n_results=n_results)
 
-    # Format the results
-    retrieved_context = ""
+    # Format the results differently
+    retrieved_context = (
+        "Here is some relevant information that might help with your answer:\n\n"
+    )
+
+    # Track what we've already included to avoid duplication
+    included_docs = set()
+
+    # Keep track of processed entries for retrieved_texts
     retrieved_texts = []
 
+    # First pass: prefer full answers
     for i, (doc, metadata) in enumerate(
         zip(results["documents"], results["metadatas"])
     ):
-        retrieved_context += f"Document {i + 1}:\n{doc}\n"
-        if "source" in metadata:
-            retrieved_context += f"Source: {metadata['source']}\n"
-        retrieved_context += "\n"
+        # Skip questions since we already have the question
+        if metadata.get("type") == "question":
+            continue
 
+        # Prioritize full answers
+        if metadata.get("type") == "full_answer":
+            if doc not in included_docs:
+                retrieved_context += f"{doc}\n\n"
+                included_docs.add(doc)
+
+        # Add to retrieved_texts regardless
         retrieved_texts.append(
             {"text": doc, "metadata": metadata, "distance": results["distances"][i]}
         )
+
+    # Second pass: include other relevant info if we don't have enough context
+    if len(included_docs) < 2:
+        for i, (doc, metadata) in enumerate(
+            zip(results["documents"], results["metadatas"])
+        ):
+            if doc not in included_docs and metadata.get("type") != "question":
+                retrieved_context += f"{doc}\n\n"
+                included_docs.add(doc)
+                if len(included_docs) >= 2:
+                    break
 
     return {
         "question": question,

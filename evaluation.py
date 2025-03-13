@@ -1,5 +1,5 @@
 """
-Enhanced model evaluation with RAG support for Llama 3.2 fine-tuning
+Enhanced model evaluation with RAG support for Llama 3.2 fine-tuning that can use ZenML models
 """
 
 import torch
@@ -8,7 +8,8 @@ from typing_extensions import Annotated
 from tqdm.auto import tqdm
 from zenml import step
 from zenml.logger import get_logger
-from zenml import log_artifact_metadata
+from zenml import log_metadata
+from zenml.client import Client
 
 from config import TEST_QUESTIONS, MAX_NEW_TOKENS, HF_TOKEN, SYSTEM_PROMPT
 from utils import (
@@ -33,6 +34,7 @@ def test_model_with_rag(
     use_rag: bool = True,
     n_results: int = 3,
     compare_with_without_rag: bool = True,
+    use_zenml_model: bool = True,
 ) -> Annotated[Dict[str, Any], "rag_evaluation_results"]:
     """Test the fine-tuned model on the assignment questions with optional RAG support.
 
@@ -45,10 +47,83 @@ def test_model_with_rag(
         use_rag: Whether to use RAG
         n_results: Number of results to retrieve for RAG
         compare_with_without_rag: Whether to compare results with and without RAG
+        use_zenml_model: Whether to load the model from ZenML registry
 
     Returns:
         Dictionary with evaluation results
     """
+    model_path = model_info["model_path"]
+
+    if (
+        use_zenml_model
+        and model_info.get("zenml_model_id")
+        or model_info.get("model_name")
+    ):
+        try:
+            # Get the ZenML client
+            client = Client()
+
+            # Get the model name - either directly or from info
+            model_name = model_info.get("model_name", "Assn7_VectorDB_Llama_3.2")
+            logger.info(f"Attempting to load model from ZenML registry: {model_name}")
+
+            # Get the model by name (according to API docs)
+            try:
+                client.get_model(model_name)
+                logger.info(f"Found model: {model_name}")
+
+                # List versions for this model
+                model_versions = client.list_model_versions(name=model_name)
+
+                if model_versions and len(model_versions) > 0:
+                    # Get the latest version (first in the list)
+                    latest_version = model_versions[0]
+                    logger.info(f"Using latest version: {latest_version.name}")
+
+                    # Get the model source URI
+                    # Different versions of ZenML might use different attribute names
+                    model_uri = None
+
+                    # Try to get the source URI using various possible attribute names
+                    if hasattr(latest_version, "model_source_uri"):
+                        model_uri = latest_version.model_source_uri
+                    elif hasattr(latest_version, "model_source"):
+                        model_uri = latest_version.model_source
+                    elif hasattr(latest_version, "source"):
+                        model_uri = latest_version.source
+                    elif hasattr(latest_version, "uri"):
+                        model_uri = latest_version.uri
+
+                    if model_uri:
+                        logger.info(f"Found model URI: {model_uri}")
+                        model_path = model_uri
+                    else:
+                        # If no direct URI attribute, try getting it through the artifact store
+                        try:
+                            # Some versions have a method to get the URI from the artifact store
+                            if hasattr(client, "get_model_uri_artifact_store"):
+                                model_uri = client.get_model_uri_artifact_store(
+                                    latest_version
+                                )
+                                logger.info(
+                                    f"Got model URI from artifact store: {model_uri}"
+                                )
+                                model_path = model_uri
+                        except Exception as uri_error:
+                            logger.warning(
+                                f"Could not get model URI from artifact store: {uri_error}"
+                            )
+                            logger.info("Falling back to local model path")
+                else:
+                    logger.warning(f"No versions found for model: {model_name}")
+            except KeyError as e:
+                logger.warning(f"Model not found by name: {e}")
+            except Exception as e:
+                logger.warning(f"Error retrieving model: {e}")
+        except Exception as e:
+            logger.warning(f"Failed to load model from ZenML: {e}")
+            logger.info("Falling back to local model path")
+
     # First check if we can use Unsloth
     use_unsloth_backend = use_unsloth() and model_info.get("backend_used") == "unsloth"
 
@@ -59,7 +134,7 @@ def test_model_with_rag(
             from unsloth import FastLanguageModel
 
             model, tokenizer = FastLanguageModel.from_pretrained(
-                model_name=model_info["model_path"],
+                model_name=model_path,
                 max_seq_length=512,
                 load_in_4bit=True,
                 token=hf_token,
@@ -79,13 +154,13 @@ def test_model_with_rag(
         from transformers import AutoModelForCausalLM, AutoTokenizer
 
         tokenizer = AutoTokenizer.from_pretrained(
-            model_info["model_path"],
+            model_path,
             token=hf_token,
         )
 
         # Load model with appropriate settings for CPU/GPU
         model = AutoModelForCausalLM.from_pretrained(
-            model_info["model_path"],
+            model_path,
             token=hf_token,
             device_map="auto",  # Works for both CPU and GPU
             torch_dtype=torch.float32
@@ -145,7 +220,6 @@ def test_model_with_rag(
         for version in answer_versions:
             is_rag = version == "with_rag"
 
-            # Prepare prompt
             if is_rag:
                 # Retrieve relevant context
                 context_results = retrieve_similar_context(
@@ -153,12 +227,12 @@ def test_model_with_rag(
                 )
                 context = context_results["retrieved_context"]
 
-                # Format as chat with context
+                # Format as chat with context - improved prompt
                 messages = [
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {
                         "role": "user",
-                        "content": f"Here is some relevant information:\n\n{context}\n\nWith this information, please answer the following question: {question}",
+                        "content": f"{context}\n\nGiven the information above, please answer this question: {question}",
                     },
                 ]
             else:
@@ -249,8 +323,9 @@ def test_model_with_rag(
         "num_questions": len(test_questions),
         "backend_used": "unsloth" if use_unsloth_backend else "transformers",
         "rag_used": use_rag and vectordb_info is not None,
+        "model_source": "zenml" if use_zenml_model else "local",
     }
-    log_artifact_metadata(evaluation_metrics)
+    log_metadata(evaluation_metrics)
 
     # Save answers.txt file
     file_prefix = "rag_" if use_rag and vectordb_info is not None else ""

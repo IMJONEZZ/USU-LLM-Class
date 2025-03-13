@@ -8,7 +8,7 @@ import numpy as np
 from sentence_transformers import SentenceTransformer
 
 # Default model for embeddings
-DEFAULT_EMBEDDING_MODEL = "all-MiniLM-L6-v2"
+DEFAULT_EMBEDDING_MODEL = "all-MiniLM-L12-v2"
 
 
 class EmbeddingGenerator:
