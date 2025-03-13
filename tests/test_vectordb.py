@@ -17,7 +17,7 @@ class TestEmbeddingGenerator:
     def test_initialization(self):
         """Test initialization of the EmbeddingGenerator."""
         generator = EmbeddingGenerator()
-        assert generator.model_name == "all-MiniLM-L6-v2"
+        assert generator.model_name == "all-MiniLM-L12-v2"
         assert generator.embedding_dimension > 0
 
     def test_generate_embeddings_single(self):
