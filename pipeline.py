@@ -6,7 +6,7 @@ from zenml import pipeline
 from zenml.logger import get_logger
 
 # Import steps from our modules
-from dataset import create_dataset
+from dataset import create_dataset, create_enhanced_dataset, add_test_answers_to_vectordb
 from model import train_llama_model
 from evaluation import test_model_with_rag
 from vectordb_step import create_vector_database
@@ -64,7 +64,8 @@ def llama_rag_pipeline(
         Tuple of model_info, vectordb_info, and results
     """
     # Create the dataset
-    dataset = create_dataset()
+    # dataset = create_dataset()
+    dataset = create_enhanced_dataset(include_synthetic=True)
 
     # Train the model
     model_info = train_llama_model(
@@ -87,6 +88,8 @@ def llama_rag_pipeline(
         include_sample_data=True,
         include_test_questions=True,
     )
+    
+    vectordb_info = add_test_answers_to_vectordb(vectordb_info)
 
     # Test on assignment questions with RAG
     results = test_model_with_rag(
