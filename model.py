@@ -21,11 +21,12 @@ from config import (
     PER_DEVICE_TRAIN_BATCH_SIZE,
     GRADIENT_ACCUMULATION_STEPS,
     OUTPUT_DIR,
-    HF_TOKEN
+    HF_TOKEN,
 )
 from utils import use_unsloth
 
 logger = get_logger(__name__)
+
 
 @step
 def train_llama_model(
@@ -38,7 +39,7 @@ def train_llama_model(
     per_device_train_batch_size: int = PER_DEVICE_TRAIN_BATCH_SIZE,
     gradient_accumulation_steps: int = GRADIENT_ACCUMULATION_STEPS,
     output_dir: str = OUTPUT_DIR,
-    hf_token: str = HF_TOKEN
+    hf_token: str = HF_TOKEN,
 ) -> Annotated[Dict[str, Any], "model_info"]:
     """Train Llama 3.2:1B model with either Unsloth (GPU) or standard transformers (CPU)."""
     # Import necessary libraries
@@ -61,42 +62,50 @@ def train_llama_model(
         model = client.create_model(
             name=zenml_model_name,
             description="Llama 3.21B model finetuned for Assignment 6",
-            tags=["llama", "instruction-tuning", "assignment"]
+            tags=["llama", "instruction-tuning", "assignment"],
         )
 
     # Check if we should use Unsloth (GPU required)
     use_unsloth_backend = use_unsloth()
-    
+
     # Load model and tokenizer (different method based on backend)
     logger.info(f"Loading model {huggingface_model_name}")
-    
+
     if use_unsloth_backend:
         # Only import unsloth if we're really going to use it
         try:
             from unsloth import FastLanguageModel
+
             model, tokenizer = FastLanguageModel.from_pretrained(
                 model_name=huggingface_model_name,
                 max_seq_length=max_seq_length,
                 load_in_4bit=True,  # Use 4-bit quantization
-                token=hf_token,     # Use the HF token for authentication
+                token=hf_token,  # Use the HF token for authentication
             )
-            
+
             # Apply LoRA with Unsloth
             model = FastLanguageModel.get_peft_model(
                 model,
                 r=lora_rank,
                 target_modules=[
-                    "q_proj", "k_proj", "v_proj", "o_proj",
-                    "gate_proj", "up_proj", "down_proj",
+                    "q_proj",
+                    "k_proj",
+                    "v_proj",
+                    "o_proj",
+                    "gate_proj",
+                    "up_proj",
+                    "down_proj",
                 ],
                 lora_alpha=lora_rank,
                 lora_dropout=0.05,
                 use_gradient_checkpointing="unsloth",
             )
         except ImportError:
-            logger.warning("Failed to import unsloth, falling back to standard Transformers")
+            logger.warning(
+                "Failed to import unsloth, falling back to standard Transformers"
+            )
             use_unsloth_backend = False
-    
+
     # Use standard transformers if unsloth failed or wasn't selected
     if not use_unsloth_backend:
         # Use standard transformers for CPU
@@ -104,43 +113,52 @@ def train_llama_model(
             huggingface_model_name,
             token=hf_token,
         )
-        
+
         # Set tokenizer padding token if not set
         if tokenizer.pad_token is None:
             tokenizer.pad_token = tokenizer.eos_token
-            
+
         # Load model - with lower precision for CPU
         model = AutoModelForCausalLM.from_pretrained(
             huggingface_model_name,
             token=hf_token,
-            device_map="auto",   # Works for both CPU and lower-end GPUs
-            torch_dtype=torch.float32 if not torch.cuda.is_available() else torch.float16,
+            device_map="auto",  # Works for both CPU and lower-end GPUs
+            torch_dtype=torch.float32
+            if not torch.cuda.is_available()
+            else torch.float16,
             # Skip quantization when on CPU to avoid bitsandbytes issues
             load_in_8bit=False,
-            quantization_config=None
+            quantization_config=None,
         )
-        
+
         # Configure LORA
         lora_config = LoraConfig(
             r=lora_rank,
             lora_alpha=lora_rank,
             target_modules=[
-                "q_proj", "k_proj", "v_proj", "o_proj",
-                "gate_proj", "up_proj", "down_proj",
+                "q_proj",
+                "k_proj",
+                "v_proj",
+                "o_proj",
+                "gate_proj",
+                "up_proj",
+                "down_proj",
             ],
             lora_dropout=0.05,
             bias="none",
             task_type="CAUSAL_LM",
         )
-        
+
         # Apply LORA to model
         model = get_peft_model(model, lora_config)
-        
+
     # Log model parameters
     model_params = {
         "model_name": huggingface_model_name,
         "lora_rank": lora_rank,
-        "trainable_parameters": sum(p.numel() for p in model.parameters() if p.requires_grad),
+        "trainable_parameters": sum(
+            p.numel() for p in model.parameters() if p.requires_grad
+        ),
         "total_parameters": sum(p.numel() for p in model.parameters()),
         "backend": "unsloth" if use_unsloth_backend else "transformers",
     }
@@ -160,21 +178,35 @@ def train_llama_model(
             prompt += f"{msg['role'].upper()}: {msg['content']}\n\n"
 
         # Tokenize input and target
-        inputs = tokenizer(prompt, return_tensors="pt", padding="max_length",
-                          max_length=max_seq_length, truncation=True)
-        targets = tokenizer(example["target"], return_tensors="pt", padding="max_length",
-                           max_length=max_seq_length, truncation=True)
+        inputs = tokenizer(
+            prompt,
+            return_tensors="pt",
+            padding="max_length",
+            max_length=max_seq_length,
+            truncation=True,
+        )
+        targets = tokenizer(
+            example["target"],
+            return_tensors="pt",
+            padding="max_length",
+            max_length=max_seq_length,
+            truncation=True,
+        )
 
         return {
             "input_ids": inputs.input_ids[0],
             "attention_mask": inputs.attention_mask[0],
-            "labels": targets.input_ids[0]
+            "labels": targets.input_ids[0],
         }
 
     # Process the datasets
     logger.info("Tokenizing datasets")
-    tokenized_train = train_dataset.map(tokenize_function, remove_columns=train_dataset.column_names)
-    tokenized_eval = eval_dataset.map(tokenize_function, remove_columns=eval_dataset.column_names)
+    tokenized_train = train_dataset.map(
+        tokenize_function, remove_columns=train_dataset.column_names
+    )
+    tokenized_eval = eval_dataset.map(
+        tokenize_function, remove_columns=eval_dataset.column_names
+    )
 
     # Create output directory
     os.makedirs(output_dir, exist_ok=True)
@@ -182,12 +214,16 @@ def train_llama_model(
     # Reduce batch size for CPU training if needed
     actual_batch_size = per_device_train_batch_size
     actual_grad_accum = gradient_accumulation_steps
-    
+
     if not torch.cuda.is_available():
-        logger.warning("Running on CPU - reducing batch size and increasing gradient accumulation steps")
+        logger.warning(
+            "Running on CPU - reducing batch size and increasing gradient accumulation steps"
+        )
         actual_batch_size = 1
         actual_grad_accum = gradient_accumulation_steps * per_device_train_batch_size
-        logger.info(f"New batch size: {actual_batch_size}, new grad_accum: {actual_grad_accum}")
+        logger.info(
+            f"New batch size: {actual_batch_size}, new grad_accum: {actual_grad_accum}"
+        )
 
     # Set up training arguments
     training_args = TrainingArguments(
@@ -227,7 +263,9 @@ def train_llama_model(
     final_metrics = {
         "train_loss": train_result.metrics.get("train_loss", 0),
         "train_runtime": train_result.metrics.get("train_runtime", 0),
-        "train_samples_per_second": train_result.metrics.get("train_samples_per_second", 0),
+        "train_samples_per_second": train_result.metrics.get(
+            "train_samples_per_second", 0
+        ),
     }
 
     # Evaluate the model
@@ -235,9 +273,11 @@ def train_llama_model(
     eval_metrics = trainer.evaluate()
 
     # Combine metrics
-    final_metrics.update({
-        "eval_loss": eval_metrics.get("eval_loss", 0),
-    })
+    final_metrics.update(
+        {
+            "eval_loss": eval_metrics.get("eval_loss", 0),
+        }
+    )
 
     # Log final metrics
     log_artifact_metadata(final_metrics)
@@ -250,5 +290,5 @@ def train_llama_model(
         "model_path": output_dir,
         "tokenizer_path": output_dir,
         "model_name": zenml_model_name,
-        "backend_used": "unsloth" if use_unsloth_backend else "transformers"
+        "backend_used": "unsloth" if use_unsloth_backend else "transformers",
     }

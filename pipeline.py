@@ -19,10 +19,11 @@ from config import (
     PER_DEVICE_TRAIN_BATCH_SIZE,
     GRADIENT_ACCUMULATION_STEPS,
     OUTPUT_DIR,
-    MAX_NEW_TOKENS
+    MAX_NEW_TOKENS,
 )
 
 logger = get_logger(__name__)
+
 
 @pipeline
 def llama_rag_pipeline(
@@ -39,10 +40,10 @@ def llama_rag_pipeline(
     vectordb_persist_dir: str = "./chroma_data",
     use_rag: bool = True,
     rag_results: int = 3,
-    compare_with_without_rag: bool = True
+    compare_with_without_rag: bool = True,
 ):
     """Pipeline for finetuning Llama 3.2:1B on instruction data with RAG support.
-    
+
     Args:
         huggingface_model_name: Name of the HuggingFace model to use
         max_length: Maximum sequence length
@@ -58,7 +59,7 @@ def llama_rag_pipeline(
         use_rag: Whether to use RAG in evaluation
         rag_results: Number of results to retrieve for RAG
         compare_with_without_rag: Whether to compare results with and without RAG
-    
+
     Returns:
         Tuple of model_info, vectordb_info, and results
     """
@@ -75,16 +76,16 @@ def llama_rag_pipeline(
         num_train_epochs=num_train_epochs,
         per_device_train_batch_size=per_device_train_batch_size,
         gradient_accumulation_steps=gradient_accumulation_steps,
-        output_dir=output_dir
+        output_dir=output_dir,
     )
-    
+
     # Create and populate the vector database
     vectordb_info = create_vector_database(
         dataset=dataset,
         collection_name=vectordb_collection,
         persist_directory=vectordb_persist_dir,
         include_sample_data=True,
-        include_test_questions=True
+        include_test_questions=True,
     )
 
     # Test on assignment questions with RAG
@@ -94,7 +95,7 @@ def llama_rag_pipeline(
         max_new_tokens=max_new_tokens,
         use_rag=use_rag,
         n_results=rag_results,
-        compare_with_without_rag=compare_with_without_rag
+        compare_with_without_rag=compare_with_without_rag,
     )
 
     return model_info, vectordb_info, results

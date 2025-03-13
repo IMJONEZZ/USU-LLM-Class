@@ -6,10 +6,14 @@ import os
 
 # HuggingFace settings
 HUGGINGFACE_MODEL_NAME = "meta-llama/Llama-3.2-1B-Instruct"
-HF_TOKEN = os.environ.get("HF_TOKEN", "")  # Set your token as an environment variable for security
+HF_TOKEN = os.environ.get(
+    "HF_TOKEN", ""
+)  # Set your token as an environment variable for security
 
 # ZenML settings
-ZENML_SERVER_URL = os.environ.get("ZENML_SERVER_URL", "")  # Set your ZenML server URL as an environment variable
+ZENML_SERVER_URL = os.environ.get(
+    "ZENML_SERVER_URL", ""
+)  # Set your ZenML server URL as an environment variable
 
 # Model training parameters
 MAX_SEQ_LENGTH = 512
@@ -46,5 +50,5 @@ TEST_QUESTIONS = [
     "Who is the current President of the United States?",
     "Was Talos alive?",
     "How many Ls are in the word parallel?",
-    "What is the riddle of the sphinx, and what are all possible answers satisfying all conditions?"
+    "What is the riddle of the sphinx, and what are all possible answers satisfying all conditions?",
 ]
