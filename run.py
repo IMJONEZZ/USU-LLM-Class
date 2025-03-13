@@ -87,7 +87,7 @@ def parse_args():
     parser.add_argument(
         "--compare",
         action="store_true",
-        default=True,
+        default=False,
         help="Compare results with and without RAG",
     )
     parser.add_argument(

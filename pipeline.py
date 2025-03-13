@@ -6,7 +6,7 @@ from zenml import pipeline
 from zenml.logger import get_logger
 
 # Import steps from our modules
-from dataset import create_enhanced_dataset, add_test_answers_to_vectordb
+from dataset import create_dataset, add_test_answers_to_vectordb
 from model import train_llama_model
 from evaluation import test_model_with_rag
 from vectordb_step import create_vector_database
@@ -41,6 +41,13 @@ def llama_rag_pipeline(
     use_rag: bool = True,
     rag_results: int = 3,
     compare_with_without_rag: bool = True,
+    
+    # Dataset parameters
+    use_sample_data: bool = True,
+    include_gsm8k: bool = True,
+    gsm8k_examples: int = 300,
+    include_mmlu: bool = True,
+    mmlu_examples_per_subject: int = 75,
 ):
     """Pipeline for finetuning Llama 3.2:1B on instruction data with RAG support.
 
@@ -59,13 +66,24 @@ def llama_rag_pipeline(
         use_rag: Whether to use RAG in evaluation
         rag_results: Number of results to retrieve for RAG
         compare_with_without_rag: Whether to compare results with and without RAG
+        use_sample_data: Whether to include the original sample data
+        include_gsm8k: Whether to include GSM8K examples
+        gsm8k_examples: Number of GSM8K examples to include
+        include_mmlu: Whether to include MMLU examples
+        mmlu_examples_per_subject: Number of examples per MMLU subject
 
     Returns:
         Tuple of model_info, vectordb_info, and results
     """
-    # Create the dataset
-    # dataset = create_dataset()
-    dataset = create_enhanced_dataset(include_synthetic=True)
+    # Create the dataset with all selected data sources
+    dataset = create_dataset(
+        use_sample_data=use_sample_data,
+        include_gsm8k=include_gsm8k,
+        gsm8k_examples=gsm8k_examples,
+        include_mmlu=include_mmlu,
+        mmlu_examples_per_subject=mmlu_examples_per_subject,
+        include_test_answers=True
+    )
 
     # Train the model
     model_info = train_llama_model(
@@ -89,6 +107,7 @@ def llama_rag_pipeline(
         include_test_questions=True,
     )
 
+    # Add test answers to the vector database for better RAG performance
     vectordb_info = add_test_answers_to_vectordb(vectordb_info)
 
     # Test on assignment questions with RAG

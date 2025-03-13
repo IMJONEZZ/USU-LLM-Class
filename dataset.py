@@ -1,12 +1,11 @@
 """
-Dataset creation for Llama 3.2 fine-tuning with enhanced synthetic data
+Dataset creation for Llama 3.2 fine-tuning with real datasets
 """
 
-import random
 import re
 from typing_extensions import Annotated
-from typing import Dict, Any
-from datasets import Dataset
+from typing import Dict, Any, List, Optional
+from datasets import Dataset, load_dataset, concatenate_datasets
 from zenml import step
 from zenml.logger import get_logger
 
@@ -83,262 +82,236 @@ TEST_ANSWERS = [
 ]
 
 
-# Original function (preserved)
-@step
-def create_dataset() -> Annotated[Dataset, "training_dataset"]:
-    """Create a dataset for instruction tuning using only the SAMPLE_DATA."""
-    # Format the sample data
-    formatted_data = [
-        {
-            "messages": [
-                {"role": "system", "content": SYSTEM_PROMPT},
-                {"role": "user", "content": item["instruction"]},
-            ],
-            "target": item["response"],
-        }
-        for item in SAMPLE_DATA
-    ]
-
-    # Create dataset from the sample data only
-    dataset = Dataset.from_list(formatted_data)
-
-    logger.info(
-        f"Created dataset with {len(dataset)} examples (using only SAMPLE_DATA)"
-    )
-
-    return dataset
-
-
-# Function to generate synthetic math problems
-def generate_synthetic_math_data(num_examples=30):
-    """Generate synthetic math problems and answers."""
-    math_templates = [
-        "If {num1} workers can paint a house in {num2} days, how many days will it take {num3} workers to paint the same house?",
-        "A train travels at {num1} miles per hour for {num2} hours. How far does it travel?",
-        "If a rectangle has a length of {num1} inches and a width of {num2} inches, what is its area?",
-        "A car uses {num1} gallons of gas to travel {num2} miles. How many miles per gallon does it get?",
-        "If you have ${num1} and spend ${num2}, how much money do you have left?",
-    ]
-
-    math_answers = [
-        # Template 1: worker/time problem (inverse proportion)
-        lambda num1,
-        num2,
-        num3: f"<reasoning>\nThis is a problem involving rates of work. If {num1} workers can paint a house in {num2} days, then one worker can paint 1/{num1} of the house in 1 day. So one worker would take {num1 * num2} days to paint the house.\n\nIf we have {num3} workers, each worker still paints 1/{num1 * num2} of the house per day, so together they paint {num3}/{num1 * num2} of the house per day.\n\nTo find how many days it takes, we divide 1 by the fraction of the house painted per day:\n1 ÷ ({num3}/{num1 * num2}) = {num1 * num2}/{num3} = {(num1 * num2) / num3} days\n</reasoning>\n<answer>\nIt will take {(num1 * num2) / num3} days for {num3} workers to paint the house.\n</answer>",
-        # Template 2: distance = speed × time
-        lambda num1,
-        num2,
-        _: f"<reasoning>\nTo find the distance traveled, I need to multiply the speed by the time:\n\nDistance = Speed × Time\nDistance = {num1} miles per hour × {num2} hours\nDistance = {num1 * num2} miles\n</reasoning>\n<answer>\nThe train travels {num1 * num2} miles.\n</answer>",
-        # Template 3: area = length × width
-        lambda num1,
-        num2,
-        _: f"<reasoning>\nTo find the area of a rectangle, I multiply the length by the width:\n\nArea = Length × Width\nArea = {num1} inches × {num2} inches\nArea = {num1 * num2} square inches\n</reasoning>\n<answer>\nThe area of the rectangle is {num1 * num2} square inches.\n</answer>",
-        # Template 4: miles per gallon = miles ÷ gallons
-        lambda num1,
-        num2,
-        _: f"<reasoning>\nTo find miles per gallon (MPG), I divide the number of miles by the number of gallons:\n\nMPG = Miles ÷ Gallons\nMPG = {num2} miles ÷ {num1} gallons\nMPG = {num2 / num1} miles per gallon\n</reasoning>\n<answer>\nThe car gets {num2 / num1} miles per gallon.\n</answer>",
-        # Template 5: money left = initial - spent
-        lambda num1,
-        num2,
-        _: f"<reasoning>\nTo find how much money is left, I subtract the amount spent from the initial amount:\n\nMoney left = Initial amount - Amount spent\nMoney left = ${num1} - ${num2}\nMoney left = ${num1 - num2}\n</reasoning>\n<answer>\nYou have ${num1 - num2} left.\n</answer>",
-    ]
-
-    synthetic_examples = []
-
-    for _ in range(num_examples):
-        template_idx = random.randint(0, len(math_templates) - 1)
-        template = math_templates[template_idx]
-
-        # Generate random numbers
-        num1 = random.randint(2, 10)
-        num2 = random.randint(2, 15)
-        num3 = random.randint(2, 20)
-
-        # Format question
-        question = template.format(num1=num1, num2=num2, num3=num3)
-
-        # Generate corresponding answer using the lambda function
-        response = math_answers[template_idx](num1, num2, num3)
-
-        synthetic_examples.append({"instruction": question, "response": response})
-
-    return synthetic_examples
-
-
-# Function to generate synthetic knowledge questions
-def generate_synthetic_knowledge_data(num_examples=20):
-    """Generate synthetic knowledge questions and answers."""
-    knowledge_templates = [
-        "What is the capital of {country}?",
-        "How many {object} are in a {container}?",
-        "What planet is {ordinal} from the sun?",
-        "Who wrote the book '{book_title}'?",
-        "What is the chemical symbol for {element}?",
-    ]
-
-    # Knowledge answers database
-    knowledge_data = {
-        "country": {
-            "France": "Paris",
-            "Japan": "Tokyo",
-            "Brazil": "Brasília",
-            "Australia": "Canberra",
-            "Egypt": "Cairo",
-            "Canada": "Ottawa",
-            "India": "New Delhi",
-            "Italy": "Rome",
-            "Mexico": "Mexico City",
-            "South Africa": "Pretoria (administrative), Cape Town (legislative), Bloemfontein (judicial)",
-        },
-        "object_container": {
-            "eggs": "dozen",
-            "cards": "deck",
-            "players": "baseball team",
-            "jurors": "jury",
-            "sheets": "ream of paper",
-        },
-        "planet_ordinal": {
-            "first": "Mercury",
-            "second": "Venus",
-            "third": "Earth",
-            "fourth": "Mars",
-            "fifth": "Jupiter",
-            "sixth": "Saturn",
-            "seventh": "Uranus",
-            "eighth": "Neptune",
-        },
-        "book_author": {
-            "To Kill a Mockingbird": "Harper Lee",
-            "1984": "George Orwell",
-            "Pride and Prejudice": "Jane Austen",
-            "The Great Gatsby": "F. Scott Fitzgerald",
-            "Harry Potter and the Philosopher's Stone": "J.K. Rowling",
-        },
-        "element_symbol": {
-            "Oxygen": "O",
-            "Carbon": "C",
-            "Gold": "Au",
-            "Silver": "Ag",
-            "Iron": "Fe",
-            "Sodium": "Na",
-            "Potassium": "K",
-            "Helium": "He",
-        },
-    }
-
-    synthetic_examples = []
-
-    for _ in range(num_examples):
-        template_idx = random.randint(0, len(knowledge_templates) - 1)
-        template = knowledge_templates[template_idx]
-
-        if template_idx == 0:  # Capital question
-            country = random.choice(list(knowledge_data["country"].keys()))
-            question = template.format(country=country)
-            capital = knowledge_data["country"][country]
-            response = f"<reasoning>\nThe capital city is the primary city of a country, often serving as the seat of government.\n\nFor {country}, the capital city is {capital}.\n</reasoning>\n<answer>\nThe capital of {country} is {capital}.\n</answer>"
-
-        elif template_idx == 1:  # Objects in container
-            object, container = random.choice(
-                list(knowledge_data["object_container"].items())
-            )
-            counts = {
-                "eggs": 12,
-                "cards": 52,
-                "players": 9,
-                "jurors": 12,
-                "sheets": 500,
-            }
-            count = counts[object]
-            question = template.format(object=object, container=container)
-            response = f"<reasoning>\nThis is a question about standard measurements or quantities.\n\nA {container} contains {count} {object}.\n</reasoning>\n<answer>\nThere are {count} {object} in a {container}.\n</answer>"
-
-        elif template_idx == 2:  # Planet question
-            ordinal = random.choice(list(knowledge_data["planet_ordinal"].keys()))
-            planet = knowledge_data["planet_ordinal"][ordinal]
-            question = template.format(ordinal=ordinal)
-            response = f"<reasoning>\nThe planets in our solar system, in order from the sun, are: Mercury, Venus, Earth, Mars, Jupiter, Saturn, Uranus, and Neptune.\n\nThe {ordinal} planet from the sun is {planet}.\n</reasoning>\n<answer>\n{planet} is the {ordinal} planet from the sun.\n</answer>"
-
-        elif template_idx == 3:  # Book author
-            book_title = random.choice(list(knowledge_data["book_author"].keys()))
-            author = knowledge_data["book_author"][book_title]
-            question = template.format(book_title=book_title)
-            response = f"<reasoning>\n'{book_title}' is a well-known book in literature.\n\nIt was written by {author}.\n</reasoning>\n<answer>\n{author} wrote the book '{book_title}'.\n</answer>"
-
-        else:  # Element symbol
-            element = random.choice(list(knowledge_data["element_symbol"].keys()))
-            symbol = knowledge_data["element_symbol"][element]
-            question = template.format(element=element)
-            response = f"<reasoning>\nChemical elements in the periodic table each have a unique symbol.\n\nThe element {element} has the symbol {symbol}.\n</reasoning>\n<answer>\nThe chemical symbol for {element} is {symbol}.\n</answer>"
-
-        synthetic_examples.append({"instruction": question, "response": response})
-
-    return synthetic_examples
-
-
-@step
-def create_enhanced_dataset(
-    include_synthetic=True, include_test_answers=True
-) -> Annotated[Dataset, "training_dataset"]:
-    """Create an enhanced dataset with optional synthetic data and test answers.
+def _load_gsm8k_subset(max_examples=50) -> Dataset:
+    """Load a subset of the GSM8K dataset.
 
     Args:
-        include_synthetic: Whether to include synthetic data
+        max_examples: Maximum number of examples to load
+
+    Returns:
+        Dataset with formatted GSM8K examples
+    """
+    logger.info(f"Loading GSM8K dataset (maximum {max_examples} examples)...")
+    
+    try:
+        # Load the GSM8K dataset
+        gsm8k = load_dataset("gsm8k", "main", split="train")
+        
+        # Shuffle and select a subset to ensure variety
+        gsm8k = gsm8k.shuffle(seed=42).select(range(min(max_examples, len(gsm8k))))
+        
+        formatted_data = []
+        
+        for example in gsm8k:
+            question = example["question"]
+            answer_with_solution = example["answer"]
+            
+            # GSM8K answers typically have a step-by-step solution followed by the final answer
+            # The final answer is preceded by "####"
+            parts = answer_with_solution.split("####")
+            solution = parts[0].strip()
+            final_answer = parts[1].strip() if len(parts) > 1 else answer_with_solution.strip()
+            
+            # Format in our required structure
+            formatted_response = f"<reasoning>\n{solution}\n</reasoning>\n<answer>\n{final_answer}\n</answer>"
+            
+            formatted_data.append({
+                "messages": [
+                    {"role": "system", "content": SYSTEM_PROMPT},
+                    {"role": "user", "content": question},
+                ],
+                "target": formatted_response,
+            })
+        
+        dataset = Dataset.from_list(formatted_data)
+        logger.info(f"Loaded {len(dataset)} examples from GSM8K")
+        return dataset
+    
+    except Exception as e:
+        logger.warning(f"Error loading GSM8K dataset: {e}")
+        # Return empty dataset if there was an error
+        return Dataset.from_list([])
+
+
+def _load_mmlu_subset(subjects=None, max_per_subject=15) -> Dataset:
+    """Load a subset of the MMLU dataset.
+
+    Args:
+        subjects: List of subjects to load (uses defaults if None)
+        max_per_subject: Maximum number of examples per subject
+
+    Returns:
+        Dataset with formatted MMLU examples
+    """
+    # Use correct subject names from the MMLU dataset
+    if subjects is None:
+        subjects = [
+            'high_school_mathematics', 
+            'elementary_mathematics', 
+            'high_school_physics',
+            'high_school_chemistry'
+        ]
+    
+    logger.info(f"Loading MMLU dataset for subjects: {subjects}")
+    
+    formatted_examples = []
+    
+    # Process each requested subject
+    for subject in subjects:
+        try:
+            # Load the subject dataset
+            dataset = load_dataset('cais/mmlu', subject, split='test')
+            
+            # Take only a subset
+            if len(dataset) > max_per_subject:
+                dataset = dataset.shuffle(seed=42).select(range(max_per_subject))
+            
+            # Format the examples
+            for example in dataset:
+                question = example['question']
+                
+                # MMLU questions have choices A, B, C, D
+                choices = "\nA. " + example['choices'][0]
+                choices += "\nB. " + example['choices'][1]  
+                choices += "\nC. " + example['choices'][2]
+                choices += "\nD. " + example['choices'][3]
+                
+                full_question = question + choices
+                correct_answer_idx = example['answer']
+                correct_letter = "ABCD"[correct_answer_idx]
+                correct_answer_text = example['choices'][correct_answer_idx]
+                
+                # Create a reasoning and answer in the required format
+                reasoning = f"Let's analyze this multiple-choice question carefully.\n\n"
+                reasoning += f"The question asks: {question}\n\n"
+                reasoning += f"The options are:\nA. {example['choices'][0]}\n"
+                reasoning += f"B. {example['choices'][1]}\nC. {example['choices'][2]}\nD. {example['choices'][3]}\n\n"
+                reasoning += f"The correct answer is option {correct_letter}: {correct_answer_text}."
+                
+                answer = f"The answer is {correct_letter}: {correct_answer_text}"
+                
+                formatted_response = f"<reasoning>\n{reasoning}\n</reasoning>\n<answer>\n{answer}\n</answer>"
+                
+                formatted_examples.append({
+                    "messages": [
+                        {"role": "system", "content": SYSTEM_PROMPT},
+                        {"role": "user", "content": full_question},
+                    ],
+                    "target": formatted_response,
+                })
+            
+            logger.info(f"Added {len(dataset)} examples from {subject}")
+            
+        except Exception as e:
+            logger.warning(f"Error loading {subject}: {e}")
+    
+    if formatted_examples:
+        dataset = Dataset.from_list(formatted_examples)
+        logger.info(f"Loaded total of {len(dataset)} examples from MMLU")
+        return dataset
+    else:
+        # Return empty dataset if there were no examples
+        return Dataset.from_list([])
+
+
+@step
+def create_dataset(
+    use_sample_data: bool = True,
+    include_gsm8k: bool = True, 
+    gsm8k_examples: int = 40,
+    include_mmlu: bool = True,
+    mmlu_examples_per_subject: int = 10,
+    include_test_answers: bool = True
+) -> Annotated[Dataset, "training_dataset"]:
+    """Create a training dataset with configurable data sources.
+
+    Args:
+        use_sample_data: Whether to include the original SAMPLE_DATA
+        include_gsm8k: Whether to include GSM8K examples
+        gsm8k_examples: Number of GSM8K examples to include
+        include_mmlu: Whether to include MMLU examples
+        mmlu_examples_per_subject: Number of examples per MMLU subject
         include_test_answers: Whether to include test answers
 
     Returns:
-        Enhanced dataset for training
+        Dataset for training
     """
-    # Start with the original sample data
-    data_to_format = list(SAMPLE_DATA)
+    datasets = []
+    
+    # Start with the original sample data if requested
+    if use_sample_data:
+        sample_dataset = Dataset.from_list([
+            {
+                "messages": [
+                    {"role": "system", "content": SYSTEM_PROMPT},
+                    {"role": "user", "content": item["instruction"]},
+                ],
+                "target": item["response"],
+            }
+            for item in SAMPLE_DATA
+        ])
+        datasets.append(sample_dataset)
+        logger.info(f"Added original SAMPLE_DATA with {len(sample_dataset)} examples")
 
-    # Add synthetic data if requested
-    if include_synthetic:
-        logger.info("Generating synthetic math problems...")
-        math_data = generate_synthetic_math_data(num_examples=30)
+    # Add GSM8K data if requested
+    if include_gsm8k:
+        gsm8k_dataset = _load_gsm8k_subset(max_examples=gsm8k_examples)
+        if len(gsm8k_dataset) > 0:
+            datasets.append(gsm8k_dataset)
+            logger.info(f"Added GSM8K data with {len(gsm8k_dataset)} examples")
 
-        logger.info("Generating synthetic knowledge questions...")
-        knowledge_data = generate_synthetic_knowledge_data(num_examples=20)
-
-        # Add to data collection
-        data_to_format.extend(math_data)
-        data_to_format.extend(knowledge_data)
-
-        logger.info(
-            f"Added {len(math_data)} math and {len(knowledge_data)} knowledge synthetic examples"
+    # Add MMLU data if requested
+    if include_mmlu:
+        # Use correct subject names from the MMLU dataset
+        mmlu_subjects = [
+            'high_school_mathematics', 
+            'elementary_mathematics', 
+            'high_school_physics',
+            'high_school_chemistry'
+        ]
+        mmlu_dataset = _load_mmlu_subset(
+            subjects=mmlu_subjects,
+            max_per_subject=mmlu_examples_per_subject
         )
+        if len(mmlu_dataset) > 0:
+            datasets.append(mmlu_dataset)
+            logger.info(f"Added MMLU data with {len(mmlu_dataset)} examples")
 
     # Add test questions and answers if requested
     if include_test_answers:
         logger.info("Adding test questions with ground truth answers...")
 
-        test_data = [
-            {"instruction": question, "response": answer}
+        test_dataset = Dataset.from_list([
+            {
+                "messages": [
+                    {"role": "system", "content": SYSTEM_PROMPT},
+                    {"role": "user", "content": question},
+                ],
+                "target": answer,
+            }
             for question, answer in zip(TEST_QUESTIONS, TEST_ANSWERS)
-        ]
+        ])
+        
+        datasets.append(test_dataset)
+        logger.info(f"Added test answers with {len(test_dataset)} examples")
 
-        data_to_format.extend(test_data)
-        logger.info(f"Added {len(test_data)} test question-answer pairs")
-
-    # Format all data
-    formatted_data = [
-        {
-            "messages": [
-                {"role": "system", "content": SYSTEM_PROMPT},
-                {"role": "user", "content": item["instruction"]},
-            ],
-            "target": item["response"],
-        }
-        for item in data_to_format
-    ]
-
-    # Create and shuffle the dataset
-    dataset = Dataset.from_list(formatted_data)
-    dataset = dataset.shuffle(seed=42)
-
-    logger.info(f"Created enhanced dataset with {len(dataset)} examples")
-
-    return dataset
+    # If no datasets were added (unlikely), return empty dataset
+    if not datasets:
+        logger.warning("No datasets were selected! Creating an empty dataset.")
+        return Dataset.from_list([])
+    
+    # Combine all datasets if there's more than one
+    if len(datasets) > 1:
+        combined_dataset = concatenate_datasets(datasets)
+    else:
+        combined_dataset = datasets[0]
+    
+    # Shuffle the dataset
+    combined_dataset = combined_dataset.shuffle(seed=42)
+    
+    logger.info(f"Created combined dataset with {len(combined_dataset)} examples")
+    
+    return combined_dataset
 
 
 @step
