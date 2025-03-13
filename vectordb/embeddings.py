@@ -2,7 +2,6 @@
 Utility functions for generating text embeddings.
 """
 
-import os
 from typing import List, Union
 import numpy as np
 

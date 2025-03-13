@@ -2,7 +2,6 @@
 Load test questions from config.py into the vector database.
 """
 
-import os
 from typing import List, Dict
 from zenml.logger import get_logger
 

@@ -2,7 +2,6 @@
 Vector database integration step for the Llama 3.2 fine-tuning pipeline.
 """
 
-import os
 from typing import Dict, Any, List, Optional
 from typing_extensions import Annotated
 from datasets import Dataset
@@ -10,7 +9,7 @@ from zenml import step
 from zenml.logger import get_logger
 from zenml import log_artifact_metadata
 
-from config import TEST_QUESTIONS, SYSTEM_PROMPT
+from config import TEST_QUESTIONS
 from vectordb import ChromaVectorDB
 
 logger = get_logger(__name__)

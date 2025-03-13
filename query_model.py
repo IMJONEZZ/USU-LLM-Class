@@ -7,8 +7,7 @@ import argparse
 import torch
 from zenml.logger import get_logger
 from utils import extract_structured_answer, check_gpu
-from config import SYSTEM_PROMPT, MAX_NEW_TOKENS, HF_TOKEN
-from vectordb import ChromaVectorDB
+from config import SYSTEM_PROMPT, MAX_NEW_TOKENS
 from vectordb_step import retrieve_similar_context
 
 logger = get_logger(__name__)
@@ -178,7 +177,7 @@ def main():
         os.environ["CUDA_VISIBLE_DEVICES"] = "-1"  # Hide GPU from PyTorch
     
     # Check for GPU
-    device = check_gpu()
+    check_gpu()
     
     # Load model and tokenizer
     print(f"Loading model from {args.model_path}...")

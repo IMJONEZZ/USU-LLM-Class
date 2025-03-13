@@ -2,7 +2,6 @@
 Retrieval-Augmented Generation (RAG) system using our fine-tuned Llama model.
 """
 
-import os
 import torch
 from typing import List, Dict, Any, Optional
 from zenml.logger import get_logger

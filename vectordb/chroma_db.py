@@ -5,10 +5,7 @@ ChromaDB implementation of the vector database.
 import os
 import uuid
 import chromadb
-from chromadb.utils import embedding_functions
-from chromadb.api.types import Documents, EmbeddingFunction, Embeddings
-from chromadb.api.models.Collection import Collection
-from typing import Dict, List, Any, Optional, Union
+from typing import Dict, List, Any, Optional
 
 from zenml.logger import get_logger
 from vectordb.base import VectorDatabase

@@ -3,8 +3,7 @@ Enhanced model evaluation with RAG support for Llama 3.2 fine-tuning
 """
 
 import torch
-import os
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, Optional
 from typing_extensions import Annotated
 from tqdm.auto import tqdm
 from zenml import step

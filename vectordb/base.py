@@ -3,7 +3,7 @@ Base classes for vector database implementations.
 """
 
 from abc import ABC, abstractmethod
-from typing import Dict, List, Any, Optional, Union
+from typing import Dict, List, Any, Optional
 
 
 class VectorDatabase(ABC):

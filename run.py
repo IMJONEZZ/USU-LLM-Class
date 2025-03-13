@@ -90,8 +90,8 @@ def main():
         print("CPU-only mode enabled")
     
     # Setup environment and check for GPU
-    client = setup_environment(zenml_url, hf_token)
-    device = check_gpu()
+    setup_environment(zenml_url, hf_token)
+    check_gpu()
     
     # Run the pipeline
     logger.info("Starting Llama 3.2 fine-tuning pipeline with RAG support")

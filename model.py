@@ -7,7 +7,6 @@ import torch
 from typing import Dict, Any
 from typing_extensions import Annotated
 from datasets import Dataset
-from tqdm.auto import tqdm
 from zenml import step
 from zenml.client import Client
 from zenml.logger import get_logger

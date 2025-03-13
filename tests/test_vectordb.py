@@ -2,7 +2,6 @@
 Tests for the vector database implementation.
 """
 
-import os
 import uuid
 import shutil
 import tempfile
