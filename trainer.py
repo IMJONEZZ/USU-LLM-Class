@@ -10,6 +10,7 @@ from trl import SFTTrainer
 
 sys.stdout.reconfigure(encoding="utf-8")
 
+
 @step
 def SFT_train(train_dataset):
     torch.cuda.empty_cache()
@@ -19,11 +20,11 @@ def SFT_train(train_dataset):
 
     model = LlamaForCausalLM.from_pretrained(
         "meta-llama/Llama-3.2-1B",
-        torch_dtype=torch.bfloat16,  
+        torch_dtype=torch.bfloat16,
         device_map="auto",
-        max_memory={0: "6GB", "cpu": "12GB"}
+        max_memory={0: "6GB", "cpu": "12GB"},
     )
-    
+
     model.gradient_checkpointing_enable()
 
     device = "cuda" if torch.cuda.is_available() else "cpu"

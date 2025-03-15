@@ -5,6 +5,7 @@ from transformers import (
     AutoTokenizer,
 )
 
+
 def evaluator():
     """Generates text using the trained LLaMA model with proper error handling and tokenization fixes."""
 
@@ -36,21 +37,19 @@ def evaluator():
     if (inputs["input_ids"].cpu() >= vocab_size).any():
         raise ValueError("Input contains tokens outside the model's vocabulary!")
 
-
     model.eval()
 
     # Generate text with proper padding and attention mask
     with torch.no_grad():
         outputs = model.generate(
-        inputs["input_ids"],
-        attention_mask=inputs["attention_mask"],
-        max_length=100,
-        pad_token_id=tokenizer.pad_token_id,
-        num_return_sequences=1,
-        temperature=0.7,  # Keep temperature low to avoid instability
-        do_sample=False,  # Disable sampling for now
-)
-
+            inputs["input_ids"],
+            attention_mask=inputs["attention_mask"],
+            max_length=100,
+            pad_token_id=tokenizer.pad_token_id,
+            num_return_sequences=1,
+            temperature=0.7,  # Keep temperature low to avoid instability
+            do_sample=False,  # Disable sampling for now
+        )
 
     # Decode and print the generated text
     generated_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
