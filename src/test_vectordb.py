@@ -1,13 +1,12 @@
 import pytest
-import pinecone
 from sentence_transformers import SentenceTransformer
-import pytest
 import os
-from pinecone import Pinecone, ServerlessSpec
-from sentence_transformers import SentenceTransformer
+from pinecone import Pinecone
 
 # Initialize Pinecone
-PINECONE_API_KEY = "pcsk_2wGKDu_5hg7QhigSXtyPM7rUkjo5dYMdWtgHuwtjM3a2etqtg64rkjbc3mrCrquaEXbG4w"
+PINECONE_API_KEY = (
+    "pcsk_2wGKDu_5hg7QhigSXtyPM7rUkjo5dYMdWtgHuwtjM3a2etqtg64rkjbc3mrCrquaEXbG4w"
+)
 pc = Pinecone(api_key=os.environ.get("PINECONE_API_KEY"))
 # Define index name
 INDEX_NAME = "test-vector-db"

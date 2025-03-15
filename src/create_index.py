@@ -15,7 +15,10 @@ if not pc.has_index(index_name):
         name=index_name,
         cloud="aws",
         region="us-east-1",
-        embed={"model": "llama-text-embed-v2", "field_map": {"chunk_text": "chunk_text"}},
+        embed={
+            "model": "llama-text-embed-v2",
+            "field_map": {"chunk_text": "chunk_text"},
+        },
     )
 
 # Connect to the index
@@ -27,19 +30,23 @@ data = SampleDataset()
 # Prepare chunked records for Pinecone
 chunked_records = []
 for record in data.records:
-    chunked_records.append({
-        "id": f"{record['id']}_instr",
-        "chunk_text": record["chunk_text"],  # Ensures chunk_text is a string
-        "type": "instruction",
-        "parent_id": record["id"]
-    })
+    chunked_records.append(
+        {
+            "id": f"{record['id']}_instr",
+            "chunk_text": record["chunk_text"],  # Ensures chunk_text is a string
+            "type": "instruction",
+            "parent_id": record["id"],
+        }
+    )
 
-    chunked_records.append({
-        "id": f"{record['id']}_resp",
-        "chunk_text": record["chunk_text"],  # Ensures chunk_text is a string
-        "type": "response",
-        "parent_id": record["id"]
-    })
+    chunked_records.append(
+        {
+            "id": f"{record['id']}_resp",
+            "chunk_text": record["chunk_text"],  # Ensures chunk_text is a string
+            "type": "response",
+            "parent_id": record["id"],
+        }
+    )
 
 # Upsert data into Pinecone
 first_index.upsert_records("test-namespace", chunked_records)
@@ -56,8 +63,7 @@ query = input("Enter a query: ")
 
 # Search the index
 results = first_index.search(
-    namespace="test-namespace",
-    query={"top_k": 10, "inputs": {"text": query}}
+    namespace="test-namespace", query={"top_k": 10, "inputs": {"text": query}}
 )
 
 # Print search results
