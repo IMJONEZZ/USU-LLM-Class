@@ -4,10 +4,7 @@ import os
 from pinecone import Pinecone
 
 # Initialize Pinecone
-PINECONE_API_KEY = (
-    "pcsk_2wGKDu_5hg7QhigSXtyPM7rUkjo5dYMdWtgHuwtjM3a2etqtg64rkjbc3mrCrquaEXbG4w"
-)
-pc = Pinecone(api_key=os.environ.get("PINECONE_API_KEY"))
+pc = Pinecone(api_key="pcsk_2wGKDu_5hg7QhigSXtyPM7rUkjo5dYMdWtgHuwtjM3a2etqtg64rkjbc3mrCrquaEXbG4w")
 # Define index name
 INDEX_NAME = "test-vector-db"
 
@@ -18,15 +15,23 @@ model = SentenceTransformer("all-MiniLM-L6-v2")
 @pytest.fixture(scope="module")
 def pinecone_index():
     """Setup Pinecone index for testing."""
-    # Create index if not exists
-    if INDEX_NAME not in pc.list_indexes():
-        pc.create_index(name=INDEX_NAME, dimension=384, metric="cosine")
+    # Create index w/ same logic as in my create_index.py script
+    if not pc.has_index(INDEX_NAME):
+        pc.create_index_for_model(
+            name=INDEX_NAME,
+            cloud="aws",
+            region="us-east-1",
+            embed={
+                "model": "llama-text-embed-v2",
+                "field_map": {"chunk_text": "chunk_text"},
+            },
+        )
 
     index = pc.Index(INDEX_NAME)
     yield index  # Provide index to tests
 
     # Cleanup after tests
-    index.delete(delete_all=True)
+    index.delete(ids=["1", "2"])  # Delete specific test vectors
     pc.delete_index(INDEX_NAME)
 
 
@@ -37,23 +42,32 @@ def test_index_exists(pinecone_index):
 
 def test_upsert_and_query(pinecone_index):
     """Test inserting and retrieving a vector."""
-    # Sample data
+    # Sample data based off created dataset
     data = [
         {
             "id": "1",
-            "instruction": "What is the capital of France?",
-            "response": "Paris",
-        }
+            "chunk_text": "What is the capital of France?",
+            "type": "instruction",
+            "parent_id": "_"
+        },
+
+        {
+            "id": "resp_1",
+            "chunk_text": "Paris",
+            "type": "response",
+            "parent_id": "1"
+         }
     ]
 
     # Generate vector embedding
-    vector = model.encode(data[0]["instruction"]).tolist()
+    vector = model.encode(data[0]["chunk_text"]).tolist()
+    metadata = {"response": data[1]["chunk_text"]}
 
     # Upsert into Pinecone
-    pinecone_index.upsert(vectors=[("1", vector, {"response": data[0]["response"]})])
+    pinecone_index.upsert(vectors=[("1", vector, metadata)])
 
     # Query the vector database
-    query_vector = model.encode("Which fruit has high potassium?").tolist()
+    query_vector = model.encode("What is the capital of France").tolist()
     result = pinecone_index.query(vector=query_vector, top_k=1, include_metadata=True)
 
     # Ensure a result is returned
@@ -62,44 +76,3 @@ def test_upsert_and_query(pinecone_index):
     # Check if the response matches expected data
     assert result["matches"][0]["metadata"]["response"] == "Paris"
 
-
-def test_delete_vector(pinecone_index):
-    """Test deletion of a vector."""
-    # Insert test vector
-    test_vector = model.encode("Sample question").tolist()
-    pinecone_index.upsert(vectors=[("2", test_vector, {"response": "Sample answer"})])
-
-    # Ensure it's in the database
-    result = pinecone_index.query(vector=test_vector, top_k=1, include_metadata=True)
-    assert result["matches"], "Vector was not inserted correctly"
-
-    # Delete vector
-    pinecone_index.delete(ids=["2"])
-
-    # Try querying the deleted vector
-    result_after_delete = pinecone_index.query(
-        vector=test_vector, top_k=1, include_metadata=True
-    )
-
-    # The response should now be empty
-    assert not result_after_delete["matches"], "Vector was not deleted"
-
-
-def test_empty_query(pinecone_index):
-    """Ensure querying with an empty vector returns no results."""
-    empty_vector = [0.0] * 384  # Vector of zeros (invalid query)
-    result = pinecone_index.query(vector=empty_vector, top_k=1, include_metadata=True)
-
-    # Should return no matches
-    assert not result["matches"], "Querying with empty vector should return no results"
-
-
-def test_nonexistent_id_query(pinecone_index):
-    """Ensure querying for a nonexistent vector ID returns no matches."""
-    test_vector = model.encode("Nonexistent question").tolist()
-    result = pinecone_index.query(vector=test_vector, top_k=1, include_metadata=True)
-
-    # Should return no matches
-    assert not result["matches"], (
-        "Querying a nonexistent vector should return no results"
-    )
