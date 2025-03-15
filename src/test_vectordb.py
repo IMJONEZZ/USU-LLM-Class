@@ -1,11 +1,16 @@
+#attempted fix at pytests
+
+import os
 import pytest
 from sentence_transformers import SentenceTransformer
-import os
 from pinecone import Pinecone
 
-# Initialize Pinecone
-pc = Pinecone(api_key="pcsk_2wGKDu_5hg7QhigSXtyPM7rUkjo5dYMdWtgHuwtjM3a2etqtg64rkjbc3mrCrquaEXbG4w")
-# Define index name
+# Load API key securely
+API_KEY = os.getenv("PINECONE_API_KEY")
+if not API_KEY:
+    raise ValueError("PINECONE_API_KEY is not set")
+
+pc = Pinecone(api_key=API_KEY)
 INDEX_NAME = "test-vector-db"
 
 # Load embedding model
@@ -15,23 +20,19 @@ model = SentenceTransformer("all-MiniLM-L6-v2")
 @pytest.fixture(scope="module")
 def pinecone_index():
     """Setup Pinecone index for testing."""
-    # Create index w/ same logic as in my create_index.py script
-    if not pc.has_index(INDEX_NAME):
-        pc.create_index_for_model(
+    if INDEX_NAME not in pc.list_indexes():
+        pc.create_index(
             name=INDEX_NAME,
-            cloud="aws",
-            region="us-east-1",
-            embed={
-                "model": "llama-text-embed-v2",
-                "field_map": {"chunk_text": "chunk_text"},
-            },
+            dimension=384, 
+            metric="cosine",
+            spec={"serverless": {"cloud": "aws", "region": "us-east-1"}},
         )
 
     index = pc.Index(INDEX_NAME)
     yield index  # Provide index to tests
 
     # Cleanup after tests
-    index.delete(ids=["1", "2"])  # Delete specific test vectors
+    index.delete(ids=["1"])  # Only delete IDs actually inserted
     pc.delete_index(INDEX_NAME)
 
 
@@ -42,21 +43,9 @@ def test_index_exists(pinecone_index):
 
 def test_upsert_and_query(pinecone_index):
     """Test inserting and retrieving a vector."""
-    # Sample data based off created dataset
     data = [
-        {
-            "id": "1",
-            "chunk_text": "What is the capital of France?",
-            "type": "instruction",
-            "parent_id": "_"
-        },
-
-        {
-            "id": "resp_1",
-            "chunk_text": "Paris",
-            "type": "response",
-            "parent_id": "1"
-         }
+        {"id": "1", "chunk_text": "What is the capital of France?", "type": "instruction", "parent_id": "_"},
+        {"id": "resp_1", "chunk_text": "Paris", "type": "response", "parent_id": "1"},
     ]
 
     # Generate vector embedding
@@ -64,15 +53,13 @@ def test_upsert_and_query(pinecone_index):
     metadata = {"response": data[1]["chunk_text"]}
 
     # Upsert into Pinecone
-    pinecone_index.upsert(vectors=[("1", vector, metadata)])
+    pinecone_index.upsert(vectors=[{"id": "1", "values": vector, "metadata": metadata}])
 
     # Query the vector database
-    query_vector = model.encode("What is the capital of France").tolist()
-    result = pinecone_index.query(vector=query_vector, top_k=1, include_metadata=True)
+    query_vector = model.encode("What is the capital of France?").tolist()
+    result = pinecone_index.query(vector=query_vector, top_k=1, include_metadata=True, include_values=True)
 
     # Ensure a result is returned
     assert result["matches"], "No results found in Pinecone"
-
-    # Check if the response matches expected data
+    assert "metadata" in result["matches"][0], "Metadata missing in query result"
     assert result["matches"][0]["metadata"]["response"] == "Paris"
-
