@@ -1,6 +1,6 @@
 # USU LLM Class
 
-Repository for USU LLM Class DSAI-5810/6810
+Repository for USU LLM Class DSAI-5810/6810 (Submission for Homework 5)
 
 ## Contributing
 
