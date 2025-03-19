@@ -2,6 +2,10 @@
 
 Repository for USU LLM Class DSAI-5810/6810
 
+## Assignment 8
+
+Editing read-me to submit PR for assgn 8 
+
 ## Contributing
 
 ### Set up your environment
