@@ -6,6 +6,7 @@ dependencies = [
   "bs4>=0.0.2",
   "distilabel[argilla,hf-inference-endpoints,ollama]>=1.5.3",
   "ipykernel>=6.29.5",
+  "langchain>=0.3.21",
   "pinecone>=6.0.2",
   "sentence-transformers>=3.4.1",
   "torchvision>=0.21.0",
