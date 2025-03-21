@@ -5,6 +5,7 @@ from tqdm.auto import tqdm
 
 from uuid import uuid4
 
+
 class WikiDataIngestion:
     def __init__(
         self,
@@ -17,18 +18,18 @@ class WikiDataIngestion:
     ):
         self.index = index
         self.wikidata = wikidata or load_dataset(
-            "wikipedia", "20220301.simple", split="train[:10000]", trust_remote_code=True
+            "wikipedia",
+            "20220301.simple",
+            split="train[:10000]",
+            trust_remote_code=True,
         )
-        self.embedder = embedder or SentenceTransformer('all-MiniLM-L6-v2')
+        self.embedder = embedder or SentenceTransformer("all-MiniLM-L6-v2")
         self.tokenizer = tokenizer or self.embedder.tokenizer
-        self.text_splitter = (
-            text_splitter
-            or RecursiveCharacterTextSplitter(
-                chunk_size=200,
-                chunk_overlap=20,
-                length_function=self.token_length,
-                separators=["\n\n", "\n", " ", ""],
-            )
+        self.text_splitter = text_splitter or RecursiveCharacterTextSplitter(
+            chunk_size=200,
+            chunk_overlap=20,
+            length_function=self.token_length,
+            separators=["\n\n", "\n", " ", ""],
         )
         self.batch_limit = batch_limit
 
@@ -47,8 +48,7 @@ class WikiDataIngestion:
         basic_metadata = self.get_wiki_metadata(page)
         texts = self.text_splitter.split_text(page["text"])
         metadatas = [
-            {"chunk": j, "text": text, **basic_metadata}
-            for j, text in enumerate(texts)
+            {"chunk": j, "text": text, **basic_metadata} for j, text in enumerate(texts)
         ]
         return texts, metadatas
 
