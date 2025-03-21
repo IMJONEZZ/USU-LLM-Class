@@ -64,8 +64,8 @@ def train_llama_model(
         logger.info(f"Creating new model: {zenml_model_name}")
         model_entity = client.create_model(
             name=zenml_model_name,
-            description="Llama 3.21B model finetuned for Assignment 6",
-            tags=["llama", "instruction-tuning", "assignment"],
+            description="Llama 3.21B model finetuned for Assignment 7, VectorDB",
+            tags=["llama", "instruction-tuning", "assignment7"],
         )
 
     # Check if we should use Unsloth (GPU required)
