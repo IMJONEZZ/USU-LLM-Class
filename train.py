@@ -9,7 +9,7 @@ def get_training_arguments():
 def initialize_trainer(model, tokenizer, train_dataset, eval_dataset):
     return Trainer(
         model=model,
-        args=get_training_arguments(**training_kwargs),
+        args=get_training_arguments(),
         train_dataset=train_dataset,
         eval_dataset=eval_dataset,
         data_collator=DataCollatorForLanguageModeling(tokenizer, mlm=False),

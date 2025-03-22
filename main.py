@@ -16,3 +16,4 @@ if __name__ == "__main__":
     trainer.train()
     model.save_pretrained("./text2cypher-lora-adapter")
     tokenizer.save_pretrained("./text2cypher-lora-adapter")
+    model.save_pretrained_gguf("model", tokenizer)
