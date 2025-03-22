@@ -23,19 +23,19 @@ def load_query_data():
 
 
 @pipeline
-def assignment_7_pipeline(file_path: str):
+def assignment_8_pipeline(file_path: str):
     data = load_data(file_path)
     encoding = tokenize_text(data)
     dataloader = create_dataloader(encoding)
-    dataset_embeddings = get_embeddings(encoding)
-    query_data = load_query_data()
-    query_encoding = tokenize_text(query_data)
-    query_embeddings = get_embeddings(query_encoding)
-    vectordb(dataset_embeddings, query_embeddings)
+    # dataset_embeddings = get_embeddings(encoding)
+    # query_data = load_query_data()
+    # query_encoding = tokenize_text(query_data)
+    # query_embeddings = get_embeddings(query_encoding)
+    # vectordb(dataset_embeddings, query_embeddings)
     # trained = SFT_train(dataloader)
     # generated_text = evaluator()
     return dataloader
 
 
 if __name__ == "__main__":
-    assignment_7_pipeline(file_path="SW_EpisodeIV_VI.json")
+    assignment_8_pipeline(file_path="SW_EpisodeIV_VI.json")
