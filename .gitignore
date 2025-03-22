@@ -1,0 +1,4 @@
+keys.json
+# ignore all cache files
+*.pyc
+
