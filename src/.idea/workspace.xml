@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="7c45a753-1a04-4ae5-b242-44a8da314da6" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/_showyourwork.sqlite" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/get_requests.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/initalize_api.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/stories.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/story_llama/runs/Mar20_22-58-31_Eliass-MacBook-Air.local/events.out.tfevents.1742533113.Eliass-MacBook-Air.local.5428.0" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/story_llama/runs/Mar20_23-02-12_Eliass-MacBook-Air.local/events.out.tfevents.1742533333.Eliass-MacBook-Air.local.5518.0" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/story_llama/runs/Mar20_23-03-27_Eliass-MacBook-Air.local/events.out.tfevents.1742533408.Eliass-MacBook-Air.local.5540.0" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/story_llama/runs/Mar20_23-04-38_Eliass-MacBook-Air.local/events.out.tfevents.1742533479.Eliass-MacBook-Air.local.5572.0" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/story_llama/runs/Mar21_10-18-38_Eliass-MacBook-Air.local/events.out.tfevents.1742573920.Eliass-MacBook-Air.local.7011.0" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/story_llama/runs/Mar21_14-42-17_Eliass-MacBook-Air.local/events.out.tfevents.1742589739.Eliass-MacBook-Air.local.8642.0" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/story_llama/runs/Mar21_15-32-48_Eliass-MacBook-Air.local/events.out.tfevents.1742592770.Eliass-MacBook-Air.local.8942.0" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/story_llama/runs/Mar21_15-33-54_Eliass-MacBook-Air.local/events.out.tfevents.1742592836.Eliass-MacBook-Air.local.8972.0" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/story_llama/runs/Mar21_19-21-43_Eliass-MacBook-Air.local/events.out.tfevents.1742606503.Eliass-MacBook-Air.local.9604.0" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/train_llama.py" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 7
+}</component>
+  <component name="ProjectId" id="2u87s8ABGgVB5SmCBGVbEF2Sk9r" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "elias-thompson-8",
+    "settings.editor.selected.configurable": "preferences.pluginManager"
+  }
+}]]></component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-python-sdk-abccbe9d933a-ba05f1cad1b1-com.jetbrains.pycharm.community.sharedIndexes.bundled-PC-242.20224.428" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="7c45a753-1a04-4ae5-b242-44a8da314da6" name="Changes" comment="" />
+      <created>1741618551969</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1741618551969</updated>
+    </task>
+    <servers />
+  </component>
+</project>
