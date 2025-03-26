@@ -4,7 +4,7 @@ import time
 
 # Initialize Pinecone API
 pc = Pinecone(
-    api_key="pcsk_2wGKDu_5hg7QhigSXtyPM7rUkjo5dYMdWtgHuwtjM3a2etqtg64rkjbc3mrCrquaEXbG4w"
+    api_key=""
 )
 
 index_name = "first-index"
