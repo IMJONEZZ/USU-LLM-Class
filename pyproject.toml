@@ -16,7 +16,9 @@ dependencies = [
     "torch>=2.6.0",
     "tqdm>=4.67.1",
     "transformers>=4.48.2",
-    "typing_extensions>=4.12.2"
+    "typing_extensions>=4.12.2",
+    "fastapi>=0.70.0",
+    "uvicorn>=0.15.0"
 ]
 
 [dependency-groups]
