@@ -1,0 +1,6 @@
+gradio
+guidance
+torch  # Required for running models locally
+transformers  # Required if using Hugging Face Transformers models
+accelerate  # Helps with model performance
+pytest
