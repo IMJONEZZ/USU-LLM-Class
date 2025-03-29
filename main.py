@@ -2,6 +2,7 @@ from zenml import pipeline, step
 import json
 from tokenizer import tokenize_text
 from dataloader import create_dataloader
+
 # from vectordb import vectordb, get_embeddings
 from html_output import html_outlines_output
 # from trainer import SFT_train
@@ -35,7 +36,9 @@ def assignment_9_pipeline(file_path: str):
     # vectordb(dataset_embeddings, query_embeddings)
     # trained = SFT_train(dataloader)
     # generated_text = evaluator()
-    dataloader = dataloader # This is stupid but I'm doing it to pass the GitHub format check
+    dataloader = (
+        dataloader  # This is stupid but I'm doing it to pass the GitHub format check
+    )
     html_output = html_outlines_output()
     return html_output
 
