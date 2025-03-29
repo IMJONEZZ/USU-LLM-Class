@@ -5,6 +5,16 @@ description = "Repository for USU LLM Class DSAI-5810/6810"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "accelerate>=1.5.2",
+    "bs4>=0.0.2",
+    "datasets>=3.5.0",
+    "ipykernel>=6.29.5",
+    "jinja2>=3.1.5",
+    "langchain-community>=0.3.20",
+    "outlines>=0.2.1",
+    "pydantic>=2.8.2",
+    "sentencepiece>=0.2.0",
+    "transformers>=4.50.3",
     "zenml[server]>=0.73.0",
 ]
 
