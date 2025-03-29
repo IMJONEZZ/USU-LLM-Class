@@ -6,6 +6,8 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "zenml[server]>=0.73.0",
+    "torch",
+    "outlines"
 ]
 
 [dependency-groups]
