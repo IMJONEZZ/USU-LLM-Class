@@ -9,7 +9,7 @@ dependencies = [
     "torch",
     "outlines",
     "transformers",
-    "faiss",
+    "faiss-cpu",
     "json2html"
 ]
 
