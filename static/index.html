@@ -1,77 +1,103 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-    <meta charset="utf-8" />
-    <title>Ask the Llama!</title>
-    <style>
-        body {
-            font-family: sans-serif;
-            margin: 40px auto;
-            max-width: 600px;
-        }
-        h1 {
-            margin-bottom: 10px;
-        }
-        #question {
-            width: 100%;
-            padding: 8px;
-        }
-        #askBtn {
-            margin-top: 8px;
-            padding: 10px 20px;
-            cursor: pointer;
-        }
-        #answer {
-            margin-top: 20px;
-            padding: 10px;
-            background: #efefef;
-            min-height: 30px;
-        }
-    </style>
+  <meta charset="utf-8" />
+  <title>Ask the Llama!</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 40px auto;
+      max-width: 600px;
+    }
+
+    h1 {
+      margin-bottom: 10px;
+    }
+
+    #question {
+      width: 100%;
+      padding: 8px;
+    }
+
+    #askBtn {
+      margin-top: 8px;
+      padding: 10px 20px;
+      cursor: pointer;
+    }
+
+    #answer {
+      margin-top: 20px;
+      padding: 10px;
+      background: #efefef;
+      min-height: 30px;
+    }
+
+    .qa-entry {
+      margin-bottom: 15px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      background: #fff;
+    }
+
+    .qa-entry .question {
+      font-weight: bold;
+    }
+
+    .qa-entry .answer {
+      margin-top: 5px;
+    }
+  </style>
 </head>
+
 <body>
-    <h1>Llama 3.2 QA Demo</h1>
-    <p>Ask a question:</p>
-    <textarea id="question" rows="3" placeholder="Type your question..."></textarea><br />
-    <button id="askBtn">Ask</button>
+  <h1>HTML Insert Demo</h1>
+  <p>Ask a question:</p>
+  <textarea id="question" rows="3" placeholder="Type your question..."></textarea><br />
+  <button id="askBtn">Ask</button>
 
-    <div id="answer"></div>
+  <div id="answer"></div>
 
-    <script>
-      const askBtn = document.getElementById('askBtn');
-      const questionInput = document.getElementById('question');
-      const answerDiv = document.getElementById('answer');
+  <script>
+    const askBtn = document.getElementById('askBtn');
+    const questionInput = document.getElementById('question');
+    const answerDiv = document.getElementById('answer');
 
-      askBtn.addEventListener('click', async () => {
-        const questionText = questionInput.value.trim();
+    askBtn.addEventListener('click', async () => {
+      const questionText = questionInput.value.trim();
 
-        if (!questionText) {
-          answerDiv.innerText = "Please enter a question!";
+      if (!questionText) {
+        alert("Please enter a question!");
+        return;
+      }
+      
+      // Optionally, clear the input field after capturing the question
+      questionInput.value = "";
+
+      try {
+        const response = await fetch("/predict", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ inputs: questionText })
+        });
+
+        if (!response.ok) {
+          alert("Error from server.");
           return;
         }
-        // Clear the answer area
-        answerDiv.innerText = "Thinking...";
-
-        try {
-          const response = await fetch("/predict", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ inputs: questionText })
-          });
-
-          if (!response.ok) {
-            answerDiv.innerText = "Error from server.";
-            return;
-          }
-          const data = await response.json();
-          answerDiv.innerText = data.generated_text;
-        } catch (err) {
-          console.error(err);
-          answerDiv.innerText = "Network error or server unreachable.";
-        }
-      });
-    </script>
+        
+        // Get the HTML snippet from the response text
+        const qaHTML = await response.text();
+        // Append the new QA entry to the answer container
+        answerDiv.innerHTML += qaHTML;
+      } catch (err) {
+        console.error(err);
+        alert("Network error or server unreachable.");
+      }
+    });
+  </script>
 </body>
+
 </html>
