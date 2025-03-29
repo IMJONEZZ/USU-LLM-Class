@@ -1,5 +1,4 @@
 from zenml import step
-import numpy as np
 import faiss
 import torch
 from transformers import AutoModel

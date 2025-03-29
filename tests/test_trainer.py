@@ -85,7 +85,7 @@ def test_SFT_train(
             model=mock_model,
             args=mock_training_args,
             train_dataset=mock_train_dataset.dataset,
-            data_collator=ANY,  # Use ANY to match the lambda function
+            data_collator="ANY",  # Use ANY to match the lambda function
         )
         mock_sft_trainer.return_value.train.assert_called_once()
         mock_model.save_pretrained.assert_called_once_with("./star_wars_llama")
@@ -135,7 +135,7 @@ def test_SFT_train_no_cuda(
             model=mock_model,
             args=mock_training_args,
             train_dataset=mock_train_dataset.dataset,
-            data_collator=ANY,  # Use ANY to match the lambda function
+            data_collator="ANY",  # Use ANY to match the lambda function
         )
         mock_sft_trainer.return_value.train.assert_called_once()
         mock_model.save_pretrained.assert_called_once_with("./star_wars_llama")

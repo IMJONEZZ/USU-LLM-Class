@@ -1,6 +1,6 @@
 import pytest
 import torch
-from unittest.mock import patch, MagicMock, call
+from unittest.mock import patch, MagicMock
 from transformers import AutoTokenizer, LlamaForCausalLM
 from evaluator import evaluator  # Modified to return generated_text
 
