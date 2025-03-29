@@ -3,6 +3,7 @@ from typing import List
 import outlines
 from jinja2 import Template
 
+
 # Define the Student Pydantic model
 class Student(BaseModel):
     name: constr(max_length=20)
@@ -12,9 +13,10 @@ class Student(BaseModel):
     gpa: confloat(ge=0, le=4)  # GPA should be between 0 and 4
     clubs: List[str]
 
+
 model = outlines.models.transformers(
     "meta-llama/Llama-3.1-8B",
-    model_kwargs={"device_map": "auto"}  # Adjust device settings as needed
+    model_kwargs={"device_map": "auto"},  # Adjust device settings as needed
 )
 
 template_str = """

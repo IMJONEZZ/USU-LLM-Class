@@ -172,3 +172,11 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+
+text2cypher-lora/
+text2cypher-lora-adapter/
+unsloth_compiled_cache/
+output/
+model/
+llama.cpp/

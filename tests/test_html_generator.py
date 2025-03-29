@@ -1,6 +1,7 @@
 from generate_html import template, generator
 from bs4 import BeautifulSoup
 
+
 def test_html_structure():
     student = generator("Give me a student description", seed=789001)
     output = template.render(student=student.dict())
@@ -8,15 +9,16 @@ def test_html_structure():
     assert "<!DOCTYPE html>" in output
     assert "<html>" in output
     assert "</html>" in output
-    
+
     # Parse with BeautifulSoup for deeper validation
     soup = BeautifulSoup(output, "html.parser")
     assert soup.title.string == "Student Profile"
-    
+
+
 def test_student_data_presence():
     # Generate test data
     student = generator("Give me a student description", seed=789001)
-    
+
     # Fix Pydantic deprecation warning
     html_output = template.render(student=student.model_dump())  # Changed from .dict()
     soup = BeautifulSoup(html_output, "html.parser")
@@ -44,4 +46,3 @@ def test_student_data_presence():
     clubs_list = soup.select("li:has(> strong:-soup-contains('Clubs Joined:')) ul")
     assert len(clubs_list) == 1, "Missing clubs sublist"
     assert len(clubs_list[0].find_all("li")) >= 1, "No clubs listed"
-
