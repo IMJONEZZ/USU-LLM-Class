@@ -1,6 +1,6 @@
 from zenml import step
 import outlines
-from json2html import *
+import json2html
 
 
 @step

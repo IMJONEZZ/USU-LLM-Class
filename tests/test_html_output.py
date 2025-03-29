@@ -1,4 +1,3 @@
-import pytest
 from html_output import html_outlines_output
 
 
