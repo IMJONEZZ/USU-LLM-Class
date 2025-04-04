@@ -9,6 +9,7 @@ falcon = models.Transformers("tiiuae/falcon-rw-1b")
 # Initialize Flask app
 app = Flask(__name__)
 
+
 # Function to generate HTML from the model response
 def generate_html_output(prompt):
     lm = falcon + prompt + gen(max_tokens=100)
@@ -30,11 +31,12 @@ def generate_html_output(prompt):
     """
     return html_output
 
-@app.route('/generate', methods=['POST'])
+
+@app.route("/generate", methods=["POST"])
 def generate():
     # Get the JSON data from the request
     data = request.get_json()
-    prompt = data.get('prompt')
+    prompt = data.get("prompt")
 
     if prompt:
         html_response = generate_html_output(prompt)
@@ -42,5 +44,6 @@ def generate():
     else:
         return jsonify({"error": "No prompt provided!"}), 400
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     app.run(debug=True)
