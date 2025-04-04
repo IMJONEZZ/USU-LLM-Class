@@ -15,7 +15,7 @@ import dspy
 dspy.settings.configure(
     lm=dspy.LM(
         model="huggingface/tiiuae/Falcon-7B-Instruct",
-        api_key = "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"
+        api_key = ""
     )
 )
 
