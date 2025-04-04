@@ -1,25 +1,36 @@
 import dspy
-from dspy.datasets.gsm8k import GSM8K, gsm8k_metric
 
-# Configure the dspy settings
-dspy.settings.configure(lm=dspy.LM('ollama_chat/llama3.2:1b', api_base='http://localhost:11434', api_key=''))
 
-# Load the GSM8K dataset and a few examples
-gsm8k = GSM8K()
-gsm8k_trainset = gsm8k.train[:10]
 
-# Define the dspy program and optimizer
-dspy_program = dspy.ChainOfThought("question -> answer")
-optimizer = dspy.BootstrapFewShot(metric=gsm8k_metric, max_bootstrapped_demos=4, max_labeled_demos=4, max_rounds=5)
+# Define a structured class for the email response
+class EmailTemplate(dspy.Signature):
+    subject: str = dspy.OutputField(desc="The subject line of the email")
+    greeting: str = dspy.OutputField(desc="A greeting to the recipient")
+    body: str = dspy.OutputField(desc="The main content of the email")
+    closing: str = dspy.OutputField(desc="A closing statement")
+    signature: str = dspy.OutputField(desc="The sender's name or sign-off")
 
-# Compile the dspy program
-compiled_dspy_program = optimizer.compile(dspy_program, trainset=gsm8k_trainset)
+# Initialize a model (you can swap this with another LLM if needed)
+dspy.configure(lm=dspy.LM('ollama_chat/llama3.2:1b'), api_base='http://localhost:11434', api_key='')
 
-# Save the compiled dspy program
-compiled_dspy_program.save("./dspy_program/", save_program=True)
-compiled_dspy_program.save("./dspy_program/program.json", save_program=False)
+# Create a structured prompting module
+generate_email = dspy.Predict(EmailTemplate)
 
-# Demo Results
-loaded_dspy_program = dspy.load("./dspy_program/")
-result = loaded_dspy_program(question="If it takes 1 hour for 60 people to play an orchestra how long will it take for 600 people to play the same orchestra?")
-print(result)
+# Example usage
+query = "Remind my team about the project deadline next Friday."
+email_response = generate_email()
+
+# Format the output as an email
+formatted_email = f"""
+Subject: {email_response.subject}
+
+{email_response.greeting},
+
+{email_response.body}
+
+{email_response.closing},
+{email_response.signature}
+"""
+
+print(formatted_email)
+
