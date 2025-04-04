@@ -5,3 +5,4 @@ transformers
 sentence-transformers
 faiss-cpu
 pydantic
+dspy
