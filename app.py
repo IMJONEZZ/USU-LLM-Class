@@ -46,38 +46,43 @@ def generate_response(question: str) -> str:
     inputs = tokenizer(question, return_tensors="pt", padding=True, truncation=True)
     input_ids = inputs.input_ids.to(DEVICE)
     attention_mask = inputs.attention_mask.to(DEVICE)
-    
+
+    # Determine how many new tokens to generate
     input_length = input_ids.shape[-1]
     max_new_tokens = 200 - input_length
-    
+
     # Initialize output_ids with the input prompt
     output_ids = input_ids.clone()
-    
+
     # Initialize progress bar
     progress_bar = tqdm(total=max_new_tokens, desc="Generating", leave=False)
-    
+
+    # Generate tokens one by one
     for _ in range(max_new_tokens):
+        # Generate one additional token
         outputs = model.generate(
             output_ids,
             attention_mask=attention_mask,
-            max_length=output_ids.shape[-1] + 1,  # Generate one token at a time
+            max_length=output_ids.shape[-1] + 1,  # only add one token
             do_sample=True,
             temperature=0.3,
             top_p=0.9,
             repetition_penalty=1.2,
         )
-        # Get the newly generated token
+        # Extract the new token from the output
         new_token = outputs[0, -1].unsqueeze(0).unsqueeze(0)
         output_ids = torch.cat([output_ids, new_token], dim=-1)
-        # Update the attention mask to include the new token
-        new_attention = torch.ones((attention_mask.shape[0], 1), device=DEVICE)
-        attention_mask = torch.cat([attention_mask, new_attention], dim=-1)
-        
+
+        # Update the progress bar
         progress_bar.update(1)
+
+        # Stop early if the EOS token is generated
         if new_token.item() == tokenizer.eos_token_id:
             break
+
     progress_bar.close()
-    
+
+    # Decode the generated tokens into text
     response = tokenizer.decode(output_ids[0], skip_special_tokens=True).strip()
     response = response.split("\n")[0]
     return response
@@ -100,7 +105,7 @@ async def predict(input_data: InferenceInput):
     """
     question = input_data.inputs
     answer = generate_response(question)
-    
+
     # Create an HTML snippet with clearly separated parts for question and answer.
     html_content = f"""
     <div class="qa-entry">
