@@ -15,7 +15,7 @@ import dspy
 dspy.settings.configure(
     lm=dspy.LM(
         model="huggingface/tiiuae/Falcon-7B-Instruct",
-        api_key = ""
+        # api_key = ""
     )
 )
 
@@ -43,7 +43,7 @@ dspy.settings.configure(
     lm=dspy.LM(
         # model="huggingface/tiiuae/Falcon-7B-Instruct",
         model ="meta-llama/Llama-3.1-8B-Instruct",
-        api_key=""
+        # api_key=""
     )
 )
 
