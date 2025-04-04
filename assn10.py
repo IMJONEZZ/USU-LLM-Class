@@ -43,7 +43,7 @@ dspy.settings.configure(
     lm=dspy.LM(
         # model="huggingface/tiiuae/Falcon-7B-Instruct",
         model ="meta-llama/Llama-3.1-8B-Instruct",
-        api_key="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"
+        api_key=""
     )
 )
 
