@@ -1,0 +1,57 @@
+{
+  "predict": {
+    "traces": [],
+    "train": [],
+    "demos": [
+      {
+        "augmented": true,
+        "question": "Bridget counted 14 shooting stars in the night sky.  Reginald counted two fewer shooting stars than did Bridget, but Sam counted four more shooting stars than did Reginald.  How many more shooting stars did Sam count in the night sky than was the average number of shooting stars observed for the three of them?",
+        "reasoning": "To find out how many more shooting stars Sam counted than Bridget, we need to calculate Reginald's count first.\n\nReginald counted 2 fewer shooting stars than did Bridget. So Reginald counted 14 - 2 = 12 shooting stars.\nSam counted four more shooting stars than did Reginald. So Sam counted 12 + 4 = 16 shooting stars.\n\nThe total number of shooting stars observed by the three of them is 14 (Bridget) + 12 (Reginald) + 16 (Sam) = 42.\n\nTo find out how many more shooting stars Sam counted than Bridget, we need to subtract Bridget's count from Sam's count: \n16 - 14 = 2\n\nSo the average number of shooting stars observed for the three of them is:\n42 \/ 3 = 14",
+        "answer": "2"
+      },
+      {
+        "augmented": true,
+        "question": "Rookie police officers have to buy duty shoes at the full price of $85, but officers who have served at least a year get a 20% discount. Officers who have served at least three years get an additional 25% off the discounted price. How much does an officer who has served at least three years have to pay for shoes?",
+        "reasoning": "To find out how much an officer who has served at least three years have to pay for shoes, we need to calculate the discount first.\n\nThe full price of duty shoes is $85. \nFor officers who have served at least a year, they get a 20% discount.\nSo, the discount amount is: $85 x 0.2 = $17\nTherefore, the discounted price is: $85 - $17 = $68\n\nNow, for officers who have served at least three years, they get an additional 25% off the discounted price.\nSo, the additional discount amount is: $68 x 0.25 = $17\nTherefore, the final price that an officer who has served at least three years have to pay for shoes is: $68 - $17 = $51",
+        "answer": "51"
+      },
+      {
+        "augmented": true,
+        "question": "A third of the contestants at a singing competition are female, and the rest are male. If there are 18 contestants in total, how many of them are male?",
+        "reasoning": "To find the number of males, we need to calculate one-third of the total number of contestants and subtract that from the total. One-third of 18 is 6, so there are 18 - 6 = 12 male contestants.",
+        "answer": "12"
+      },
+      {
+        "augmented": true,
+        "question": "Nancy bought a pie sliced it into 8 pieces. She gave 1\/2 to Joe and Darcy, and she gave 1\/4 to Carl. How many slices were left?",
+        "reasoning": "To find out how many slices were left, we need to subtract the total number of slices given away from the total number of slices.\n\nShe gave 1\/2 slice to Joe and Darcy:\n8 x 1\/2 = 4 slices\nShe gave 1\/4 slice to Carl:\n8 x 1\/4 = 2 slices\nTotal slices given away: 4 + 2 = 6 slices\n\nNow, let's subtract the total number of slices given away from the total number of slices:\n8 - 6 = 2 slices\n\nSo, Nancy was left with 2 slices.",
+        "answer": "2"
+      }
+    ],
+    "signature": {
+      "instructions": "Given the fields `question`, produce the fields `answer`.",
+      "fields": [
+        {
+          "prefix": "Question:",
+          "description": "${question}"
+        },
+        {
+          "prefix": "Reasoning: Let's think step by step in order to",
+          "description": "${reasoning}"
+        },
+        {
+          "prefix": "Answer:",
+          "description": "${answer}"
+        }
+      ]
+    },
+    "lm": null
+  },
+  "metadata": {
+    "dependency_versions": {
+      "python": "3.12",
+      "dspy": "2.6.16",
+      "cloudpickle": "3.1"
+    }
+  }
+}
