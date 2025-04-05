@@ -1,6 +1,5 @@
 from flask import Flask, request, jsonify
-from guidance import models, gen
-from guidance import user, assistant, system
+from prompt_optimizer import PromptOptimizer
 import os
 import logging
 
@@ -27,8 +26,8 @@ def generate_html():
         # Get API key from environment variable
         api_key = get_api_key()
 
-        # Initialize OpenAI model with guidance
-        llm = models.OpenAI("gpt-3.5-turbo", api_key=api_key)
+        # Initialize the PromptOptimizer with the specified model
+        optimizer = PromptOptimizer("gpt-3.5-turbo", api_key=api_key)
 
         # Get parameters from request
         data = request.json
@@ -50,37 +49,8 @@ def generate_html():
                 }
             ), 400
 
-        lm = llm
-
-        with system():
-            lm += f"You are a helpful assistant that generates valid HTML content about {topic}."
-
-        with user():
-            if content_type == "article":
-                lm += f"""
-                Please create an HTML article page about {topic} with the following structure:
-                1. A descriptive title and meta tag
-                2. Two main sections with headings and paragraphs
-                3. A footer
-
-                The HTML should be properly formatted and valid. Only return the HTML code without any explanation.
-                """
-            else:  # product
-                lm += f"""
-                Please create an HTML product page about {topic} with the following structure:
-                1. A descriptive title and meta tag
-                2. Product details section with at least 3 features in a list
-                3. A price display and buy button
-                4. A footer
-
-                The HTML should be properly formatted and valid. Only return the HTML code without any explanation.
-                """
-
-        with assistant():
-            lm += gen(name="html_output")
-
-        # Extract the HTML content from the result
-        html_content = lm["html_output"]
+        # Generate HTML content using the PromptOptimizer
+        html_content = optimizer.generate_html(topic, content_type)
 
         # Return the generated HTML
         return jsonify({"html": html_content})
@@ -90,6 +60,40 @@ def generate_html():
         return jsonify({"error": str(ve)}), 401
     except Exception as e:
         logger.error(f"Error generating HTML: {str(e)}")
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/structured-output", methods=["POST"])
+def structured_output():
+    try:
+        # Get API key from environment variable
+        api_key = get_api_key()
+
+        # Initialize the PromptOptimizer with the specified model
+        optimizer = PromptOptimizer("gpt-3.5-turbo", api_key=api_key)
+
+        # Get parameters from request
+        data = request.json
+        if not data:
+            return jsonify({"error": "No data provided"}), 400
+
+        topic = data.get("topic", "")
+        output_format = data.get("format", "json")
+
+        if not topic:
+            return jsonify({"error": "Topic is required"}), 400
+
+        # Generate structured output using the PromptOptimizer
+        result = optimizer.generate_structured_output(topic, output_format)
+
+        # Return the generated output
+        return jsonify({"result": result})
+
+    except ValueError as ve:
+        logger.error(f"API Key Error: {str(ve)}")
+        return jsonify({"error": str(ve)}), 401
+    except Exception as e:
+        logger.error(f"Error generating structured output: {str(e)}")
         return jsonify({"error": str(e)}), 500
 
 
