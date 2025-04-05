@@ -12,7 +12,7 @@ Install `uv` using the instructions found here: <https://docs.astral.sh/uv/getti
 
 If you need to add dependencies to run your code, for example cowsay, you can do so with:
 
-```bash
+```bash 
 uv add cowsay
 ```
 
