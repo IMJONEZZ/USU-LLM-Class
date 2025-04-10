@@ -9,6 +9,7 @@ from html_output import html_outlines_output
 # from trainer import SFT_train
 # from evaluator import evaluator
 from prompt_engineering import engineer_prompt
+from frontend import create_interface
 
 
 @step
@@ -27,7 +28,7 @@ def load_query_data():
 
 
 @pipeline
-def assignment_10_pipeline(file_path: str):
+def assignment_11_pipeline(file_path: str):
     data = load_data(file_path)
     encoding = tokenize_text(data)
     dataloader = create_dataloader(encoding)
@@ -40,8 +41,9 @@ def assignment_10_pipeline(file_path: str):
     # generated_text = evaluator()
     html_output = html_outlines_output()
     prompt_engineered = engineer_prompt()
+    create_interface()
     return prompt_engineered
 
 
 if __name__ == "__main__":
-    assignment_10_pipeline(file_path="SW_EpisodeIV_VI.json")
+    assignment_11_pipeline(file_path="SW_EpisodeIV_VI.json")
