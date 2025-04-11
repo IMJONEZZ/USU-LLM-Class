@@ -1,0 +1,17 @@
+Assignment 11 game plan
+
+Step 1. 
+Download  Ollama and and small llama model.
+
+
+Step 2. Pip install gradio. 
+
+
+Step  3. Make simple script that talks to the llama model. 
+
+Step 4.  talk to the llama via an api request.
+
+
+Step 5. Repeat steps 3 and 4 till it works. After many hours of this settle for whatever I get out. 
+
+ 
