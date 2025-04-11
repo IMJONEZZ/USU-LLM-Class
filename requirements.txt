@@ -1,8 +1,6 @@
-fastapi
-uvicorn
+streamlit
 torch
 transformers
-sentence-transformers
-faiss-cpu
-pydantic
-dspy
+wikipedia
+uvicorn
+fastapi

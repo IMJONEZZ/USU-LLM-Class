@@ -13,12 +13,13 @@ COPY requirements.txt /app/
 # Install Python packages
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the rest of your app code (app.py, static folder, etc.)
+# Copy the rest of your app code (streamlit_app.py, static folder, etc.)
 COPY . /app
 
+# Expose port 8501 for the Streamlit app
+EXPOSE 8501
 
-# Expose port 8000 for the FastAPI server
-EXPOSE 8000
-
-# By default, run the server
-CMD ["python", "app.py"]
+# By default, run the Streamlit app.
+# Using "--server.enableCORS=false" helps avoid CORS issues,
+# and we explicitly set the port to 8501.
+CMD ["streamlit", "run", "app.py", "--server.port=8501", "--server.enableCORS=false"]
