@@ -21,6 +21,32 @@ class PromptOptimizer:
         self.api_key = api_key
         self.llm = models.OpenAI(model_name, api_key=api_key)
 
+    def generate_text(self, prompt):
+        """Generate a text response to a general prompt.
+
+        Args:
+            prompt (str): The user's prompt
+
+        Returns:
+            str: The generated text response
+        """
+        lm = self.llm
+
+        # Use system messaging to establish the context
+        with system():
+            lm += "You are a helpful assistant that provides informative responses."
+
+        # Add the user's prompt
+        with user():
+            lm += prompt
+
+        # Capture the assistant's response
+        with assistant():
+            lm += gen(name="text_output")
+
+        # Return the generated text
+        return lm["text_output"]
+
     def generate_html(self, topic, content_type="article"):
         """Generate HTML content based on the topic and content type.
 
