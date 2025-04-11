@@ -1,5 +1,4 @@
 import streamlit as st
-from fastapi import FastAPI
 import os
 import json
 import torch
