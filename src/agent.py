@@ -1,5 +1,4 @@
-
-#agent script
+# agent script
 
 from duckduckgo_search import DDGS
 
@@ -23,7 +22,11 @@ class WebAgent:
                 results = ddgs.text(query, max_results=max_results)
                 if not results:
                     return "No relevant results found."
-                return "\n".join(f"- {r['title']} ({r['href']}): {r['body']}" for r in results if 'body' in r)
+                return "\n".join(
+                    f"- {r['title']} ({r['href']}): {r['body']}"
+                    for r in results
+                    if "body" in r
+                )
         except Exception as e:
             return f"Search failed: {e}"
 

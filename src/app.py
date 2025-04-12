@@ -14,6 +14,7 @@ model_name = "gpt2-medium"
 model = AutoModelForCausalLM.from_pretrained(model_name).to("cpu")
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 
+
 # Logic function for FastAPI and Gradio
 def generate_response(user_question, session_id=None):
     if session_id is None or session_id.strip() == "":
@@ -44,18 +45,24 @@ def generate_response(user_question, session_id=None):
     web_agent.remember(session_id, user_question, response)
     return response, session_id
 
+
 # FastAPI endpoint
 @app.get("/ask")
 def ask(question: str, session_id: str = None):
     response, session_id = generate_response(question, session_id)
     return {"session_id": session_id, "response": response}
 
+
 # Gradio interface
 gradio_interface = gr.Interface(
     fn=generate_response,
     inputs=[
-        gr.Textbox(lines=2, placeholder="Enter your question here...", label="Question"),
-        gr.Textbox(lines=1, placeholder="Session ID (optional)", label="Session ID (optional)"),
+        gr.Textbox(
+            lines=2, placeholder="Enter your question here...", label="Question"
+        ),
+        gr.Textbox(
+            lines=1, placeholder="Session ID (optional)", label="Session ID (optional)"
+        ),
     ],
     outputs=[
         gr.Textbox(label="Response"),
