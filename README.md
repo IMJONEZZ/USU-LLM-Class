@@ -8,7 +8,7 @@ Repository for USU LLM Class DSAI-5810/6810
 
 Install `uv` using the instructions found here: <https://docs.astral.sh/uv/getting-started/installation/>
 
-### Add dependencies
+### Add dependencies 
 
 If you need to add dependencies to run your code, for example cowsay, you can do so with:
 
