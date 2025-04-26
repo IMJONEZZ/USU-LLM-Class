@@ -1,4 +1,4 @@
-# USU LLM Class
+ # USU LLM Class
 
 Repository for USU LLM Class DSAI-5810/6810
 
