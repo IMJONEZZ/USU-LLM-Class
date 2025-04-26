@@ -1,4 +1,9 @@
+<<<<<<< HEAD
  # USU LLM Class
+=======
+
+# USU LLM Class
+>>>>>>> 6161de35a4f732fd187f8226629af95db0bb082e
 
 Repository for USU LLM Class DSAI-5810/6810
 
